@@ -12,6 +12,7 @@ def get_mask_from_lengths(lengths):
 
 
 def load_wav_to_torch(full_path, sampling_rate):
+    print("!!!!!!!!!!!!!!GOOOOOOGO!!!", full_path)
     data = librosa.core.load(full_path, sr=sampling_rate)[0]
     data = data / np.abs(data).max() * 0.999
     return torch.FloatTensor(data.astype(np.float32))
