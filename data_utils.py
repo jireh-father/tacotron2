@@ -26,6 +26,7 @@ class TextMelLoader(torch.utils.data.Dataset):
             hparams.mel_fmax)
         random.seed(1234)
         random.shuffle(self.audiopaths_and_text)
+        self.cache_map = {}
 
     def get_mel_text_pair(self, audiopath_and_text):
         # separate filename and text
@@ -36,16 +37,20 @@ class TextMelLoader(torch.utils.data.Dataset):
 
     def get_mel(self, filename):
         if not self.load_mel_from_disk:
-            audio_norm = load_wav_to_torch(filename, self.stft.sampling_rate)
-            # audio, sampling_rate = load_wav_to_torch(filename)
-            # if sampling_rate != self.stft.sampling_rate:
-            #     raise ValueError("{} {} SR doesn't match target {} SR".format(
-            #         sampling_rate, self.stft.sampling_rate))
-            # audio_norm = audio / self.max_wav_value
-            audio_norm = audio_norm.unsqueeze(0)
-            audio_norm = torch.autograd.Variable(audio_norm, requires_grad=False)
-            melspec = self.stft.mel_spectrogram(audio_norm)
-            melspec = torch.squeeze(melspec, 0)
+            if filename in self.cache_map:
+                melspec = self.cache_map[filename]
+            else:
+                audio_norm = load_wav_to_torch(filename, self.stft.sampling_rate)
+                # audio, sampling_rate = load_wav_to_torch(filename)
+                # if sampling_rate != self.stft.sampling_rate:
+                #     raise ValueError("{} {} SR doesn't match target {} SR".format(
+                #         sampling_rate, self.stft.sampling_rate))
+                # audio_norm = audio / self.max_wav_value
+                audio_norm = audio_norm.unsqueeze(0)
+                audio_norm = torch.autograd.Variable(audio_norm, requires_grad=False)
+                melspec = self.stft.mel_spectrogram(audio_norm)
+                melspec = torch.squeeze(melspec, 0)
+                self.cache_map[filename] = melspec
         else:
             melspec = torch.from_numpy(np.load(filename))
             assert melspec.size(0) == self.stft.n_mel_channels, (
