@@ -43,10 +43,10 @@ class TextMelLoader(torch.utils.data.Dataset):
             #         sampling_rate, self.stft.sampling_rate))
             # audio_norm = audio / self.max_wav_value
 
-            mel = torch.load(filename)
-            mel = torch.autograd.Variable(mel.cuda())
-            mel = torch.unsqueeze(mel, 0)
-            melspec = mel.half() if self.is_fp16 else mel
+            melspec = torch.load(filename)
+            # mel = torch.autograd.Variable(mel.cuda())
+            # mel = torch.unsqueeze(mel, 0)
+            # melspec = mel.half() if self.is_fp16 else mel
 
             # audio_norm = audio_norm.unsqueeze(0)
             # audio_norm = torch.autograd.Variable(audio_norm, requires_grad=False)
