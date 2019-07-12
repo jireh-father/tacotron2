@@ -27,6 +27,10 @@ class TextMelLoader(torch.utils.data.Dataset):
         random.seed(1234)
         random.shuffle(self.audiopaths_and_text)
         self.cache_map = {}
+        for i, audio_file in enumerate(self.audiopaths_and_text):
+            if i % 20 == 0:
+                print(i, "cached / ", len(self.audiopaths_and_text))
+            self.get_mel(audio_file[0])
 
     def get_mel_text_pair(self, audiopath_and_text):
         # separate filename and text
