@@ -3,6 +3,7 @@ import time
 import argparse
 import math
 from numpy import finfo
+import datetime
 
 import torch
 from distributed import apply_gradient_allreduce
@@ -204,7 +205,7 @@ def train(output_directory, log_directory, checkpoint_path, warm_start, n_gpus,
     is_overflow = False
     # ================ MAIN TRAINNIG LOOP! ===================
     for epoch in range(epoch_offset, hparams.epochs):
-        print("Epoch: {}".format(epoch))
+        print("Epoch: [{}] {}".format(datetime.datetime.now().strftime("%Y-%m-%d_%H:%M:%S"), epoch))
         for i, batch in enumerate(train_loader):
             start = time.perf_counter()
             for param_group in optimizer.param_groups:
@@ -237,8 +238,8 @@ def train(output_directory, log_directory, checkpoint_path, warm_start, n_gpus,
 
             if not is_overflow and rank == 0:
                 duration = time.perf_counter() - start
-                print("Train loss {} {:.6f} Grad Norm {:.6f} {:.2f}s/it".format(
-                    iteration, reduced_loss, grad_norm, duration))
+                print("[{}] Train loss {} {:.6f} Grad Norm {:.6f} {:.2f}s/it".format(
+                    datetime.datetime.now().strftime("%Y-%m-%d_%H:%M:%S"), iteration, reduced_loss, grad_norm, duration))
                 logger.log_training(
                     reduced_loss, grad_norm, learning_rate, duration, iteration)
 
