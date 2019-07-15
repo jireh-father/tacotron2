@@ -10,6 +10,7 @@ from hparams import create_hparams
 from train import load_model
 from text import text_to_sequence
 from denoiser import Denoiser
+import glob
 
 
 def main(tacotron2_path, waveglow_path, sigma, output_dir, sampling_rate, denoiser_strength, text, file_idx,
@@ -70,11 +71,26 @@ if __name__ == "__main__":
         os.makedirs(args.output_dir)
     zip_file = zipfile.ZipFile(
         os.path.join(args.output_dir, args.inference_name + ".zip"), 'w')
-    with open(args.textlist_path) as f:
+    with open(args.textlist_path, encoding="utf-8") as f:
         text_list = f.readlines()
 
-    for i, text in enumerate(text_list):
-        main(args.tacotron2_path, args.waveglow_path, args.sigma, args.output_dir,
-             args.sampling_rate, args.denoiser_strength, text, i, args.inference_name, zip_file)
+    if os.path.isdir(args.tacotron2_path):
+        t2_cp_paths = glob.glob(os.path.join(args.tacotron2_path, "checkpoint_*"))
+    else:
+        t2_cp_paths = args.tacotron2_path.split(",")
+
+    if os.path.isdir(args.waveglow_path):
+        wg_cp_paths = glob.glob(os.path.join(args.tacotron2_path, "waveglow_*"))
+    else:
+        wg_cp_paths = args.tacotron2_path.split(",")
+
+    for t2_model_path in t2_cp_paths:
+        for wg_model_path in wg_cp_paths:
+            for i, text in enumerate(text_list):
+                t2_steps = os.path.basename(t2_model_path).split("_")[1]
+                wg_steps = os.path.basename(wg_model_path).split("_")[1]
+                infer_name = "t2_%s_wg_%s" % (t2_steps, wg_steps)
+                main(t2_model_path, wg_model_path, args.sigma, args.output_dir,
+                     args.sampling_rate, args.denoiser_strength, text, i, infer_name, zip_file)
 
     zip_file.close()
