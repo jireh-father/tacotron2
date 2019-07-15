@@ -54,7 +54,6 @@ if __name__ == "__main__":
     import argparse
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('-i', '--inference_name', default="tt2_pre_wg_pre")
     parser.add_argument('-t', '--tacotron2_path')
     parser.add_argument('-w', '--waveglow_path',
                         help='Path to waveglow decoder checkpoint with model')
@@ -69,8 +68,7 @@ if __name__ == "__main__":
 
     if not os.path.isdir(args.output_dir):
         os.makedirs(args.output_dir)
-    zip_file = zipfile.ZipFile(
-        os.path.join(args.output_dir, args.inference_name + ".zip"), 'w')
+
     with open(args.textlist_path, encoding="utf-8") as f:
         text_list = f.readlines()
 
@@ -86,11 +84,13 @@ if __name__ == "__main__":
 
     for t2_model_path in t2_cp_paths:
         for wg_model_path in wg_cp_paths:
+            t2_steps = os.path.basename(t2_model_path).split("_")[1]
+            wg_steps = os.path.basename(wg_model_path).split("_")[1]
+            infer_name = "t2_%s_wg_%s" % (t2_steps, wg_steps)
+            zip_file = zipfile.ZipFile(
+                os.path.join(args.output_dir, infer_name + ".zip"), 'w')
             for i, text in enumerate(text_list):
-                t2_steps = os.path.basename(t2_model_path).split("_")[1]
-                wg_steps = os.path.basename(wg_model_path).split("_")[1]
-                infer_name = "t2_%s_wg_%s" % (t2_steps, wg_steps)
                 main(t2_model_path, wg_model_path, args.sigma, args.output_dir,
                      args.sampling_rate, args.denoiser_strength, text, i, infer_name, zip_file)
 
-    zip_file.close()
+            zip_file.close()
