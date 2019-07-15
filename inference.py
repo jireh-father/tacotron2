@@ -80,7 +80,7 @@ if __name__ == "__main__":
     if os.path.isdir(args.waveglow_path):
         wg_cp_paths = glob.glob(os.path.join(args.waveglow_path, "waveglow_*"))
     else:
-        wg_cp_paths = args.tacotron2_path.split(",")
+        wg_cp_paths = args.waveglow_path.split(",")
 
     for t2_model_path in t2_cp_paths:
         for wg_model_path in wg_cp_paths:
