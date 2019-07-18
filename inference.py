@@ -11,6 +11,7 @@ from train import load_model
 from text import text_to_sequence
 from denoiser import Denoiser
 import glob
+import datetime
 
 
 def main(tacotron2_path, waveglow_path, sigma, output_dir, sampling_rate, denoiser_strength, text, file_idx,
@@ -82,15 +83,20 @@ if __name__ == "__main__":
     else:
         wg_cp_paths = args.waveglow_path.split(",")
 
+
+    zip_name = "t2_%d_wg_%d_%s" %(len(t2_cp_paths), len(wg_cp_paths), datetime.datetime.now().strftime("%Y%m%d-%H%M%S"))
+    zip_file = zipfile.ZipFile(
+        os.path.join(args.output_dir, zip_name + ".zip"), 'w')
     for t2_model_path in t2_cp_paths:
         for wg_model_path in wg_cp_paths:
             t2_steps = os.path.basename(t2_model_path).split("_")[1]
             wg_steps = os.path.basename(wg_model_path).split("_")[1]
             infer_name = "t2_%s_wg_%s" % (t2_steps, wg_steps)
-            zip_file = zipfile.ZipFile(
-                os.path.join(args.output_dir, infer_name + ".zip"), 'w')
+            # zip_file = zipfile.ZipFile(
+            #     os.path.join(args.output_dir, infer_name + ".zip"), 'w')
             for i, text in enumerate(text_list):
                 main(t2_model_path, wg_model_path, args.sigma, args.output_dir,
                      args.sampling_rate, args.denoiser_strength, text, i, infer_name, zip_file)
 
-            zip_file.close()
+            # zip_file.close()
+    zip_file.close()
