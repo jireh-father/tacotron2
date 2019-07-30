@@ -25,6 +25,7 @@
 </form>
 {% if synth_wav_path %}
 <h2>결과</h2>
+<p>소요시간: {{elapsed}} seconds </p>
 <audio controls>
     <source src="/ilseo{{url_for('static', filename='synth_wav')}}/{{synth_wav_path}}" type="audio/wav">
     Your browser does not support the audio tag.

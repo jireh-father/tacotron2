@@ -11,6 +11,7 @@ from denoiser import Denoiser
 from text import text_to_sequence
 from scipy.io.wavfile import write
 import uuid
+import time
 
 SYNTH_DIR = 'static/synth_wav'
 tacotron2_model = None
@@ -53,12 +54,6 @@ app = create_app()
 # app = Flask(__name__)
 
 
-@app.route('/')
-def hello():
-    name = request.args.get("name", "World")
-    return "Hello, %s!" % name
-
-
 @app.route("/simple_synth")
 def simple_synth():
     text = request.args.get('input_text', default=None, type=str)
@@ -68,9 +63,11 @@ def simple_synth():
 
     if not text:
         return render_template("simple_synth.html", input_text=None, synth_wav_path=None,
-                           sigma=sigma, sampling_rate=sampling_rate, denoiser_strength=denoiser_strength)
+                           sigma=sigma, sampling_rate=sampling_rate, denoiser_strength=denoiser_strength, elapsed=None)
 
-    sequence = np.array(text_to_sequence(text, ['english_cleaners']))[None, :]
+
+    start = time.time()
+    sequence = np.array(text_to_sequence(text, ['transliteration_cleaners']))[None, :]
     sequence = torch.autograd.Variable(
         torch.from_numpy(sequence)).cuda().long()
 
@@ -87,13 +84,14 @@ def simple_synth():
     audio = audio.astype('int16')
     if not os.path.isdir(SYNTH_DIR):
         os.makedirs(SYNTH_DIR)
+    elapsed = time.time() - start
     filename = str(uuid.uuid4()) + '.wav'
     audio_path = os.path.join(SYNTH_DIR, filename)
     write(audio_path, sampling_rate, audio)
 
     return render_template("simple_synth.html", input_text=text,
                            synth_wav_path=filename,
-                           sigma=sigma, sampling_rate=sampling_rate, denoiser_strength=denoiser_strength)
+                           sigma=sigma, sampling_rate=sampling_rate, denoiser_strength=denoiser_strength, elapsed=elapsed)
 
 @app.after_request
 def add_header(r):
