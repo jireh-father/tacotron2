@@ -13,6 +13,9 @@ from scipy.io.wavfile import write
 import uuid
 
 SYNTH_DIR = 'static/synth_wav'
+tacotron2_model = None
+waveglow_model = None
+denoiser = None
 
 def init_model():
     print("init model!!!!")
@@ -45,14 +48,9 @@ def create_app():
         init_model()
     run_on_start()
     return app
+
 app = create_app()
 # app = Flask(__name__)
-
-tacotron2_model = None
-waveglow_model = None
-denoiser = None
-
-
 
 
 @app.route('/')
@@ -63,10 +61,10 @@ def hello():
 
 @app.route("/simple_synth")
 def simple_synth():
-    text = request.args['input_text']
-    sigma = float(request.args['sigma'])
-    sampling_rate = int(request.args['sampling_rate'])
-    denoiser_strength = float(request.args['denoiser_strength'])
+    text = request.args.get('input_text', default=None, type=str)
+    sigma = request.args.get('sigma', default=0.8, type=float)
+    sampling_rate = request.args.get('sampling_rate', default=22050, type=int)
+    denoiser_strength = request.args.get('denoiser_strength', default=0.0, type=float)
 
     if not text:
         return render_template("simple_synth.html", input_text=None, synth_wav_path=None,
