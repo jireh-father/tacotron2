@@ -21,10 +21,15 @@ denoiser = None
 
 
 @app.before_first_request
-def init_model(tacotron2_path, waveglow_path, sampling_rate=22050, denoiser_strength=0.0):
+def init_model():
     global tacotron2_model
     global waveglow_model
     global denoiser
+
+    tacotron2_path = "outdir_finetune/checkpoint_62500"
+    waveglow_path = "../waveglow-fix/checkpoints_finetune/waveglow_478000"
+    sampling_rate = 22050
+    denoiser_strength = 0.0
     hparams = create_hparams()
     hparams.sampling_rate = sampling_rate
 
