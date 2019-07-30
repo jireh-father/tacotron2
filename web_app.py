@@ -1,6 +1,6 @@
 import sys
 sys.path.append('waveglow/')
-from flask import Flask, render_template, redirect, url_for, request
+from flask import Flask, render_template, redirect, url_for, request, send_from_directory
 import numpy as np
 import os
 
@@ -97,10 +97,9 @@ def simple_synth():
 
 
 #
-# @app.route('/uploads/<path:filename>', methods=['GET', 'POST'])
-# def download(filename):
-#     uploads = os.path.join(current_app.root_path, app.config['UPLOAD_FOLDER'])
-#     return send_from_directory(directory=uploads, filename=filename)
+@app.route('/download/<path:filename>', methods=['GET', 'POST'])
+def download(filename):
+    return send_from_directory(directory=SYNTH_DIR, filename=filename)
 
 
 if __name__ == "__main__":
