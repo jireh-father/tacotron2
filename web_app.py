@@ -24,6 +24,7 @@ denoiser = None
 
 @app.before_first_request
 def init_model():
+    print("init model!!!!")
     global tacotron2_model
     global waveglow_model
     global denoiser
