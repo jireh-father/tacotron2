@@ -14,21 +14,6 @@ import uuid
 
 SYNTH_DIR = 'static/synth_wav'
 
-def create_app():
-    app = Flask(__name__)
-    def run_on_start():
-        init_model()
-    run_on_start()
-    return app
-app = create_app()
-# app = Flask(__name__)
-
-tacotron2_model = None
-waveglow_model = None
-denoiser = None
-
-
-@app.before_first_request
 def init_model():
     print("init model!!!!")
     global tacotron2_model
@@ -53,6 +38,22 @@ def init_model():
         k.float()
     if denoiser_strength > 0:
         denoiser = Denoiser(waveglow_model)
+
+def create_app():
+    app = Flask(__name__)
+    def run_on_start():
+        init_model()
+    run_on_start()
+    return app
+app = create_app()
+# app = Flask(__name__)
+
+tacotron2_model = None
+waveglow_model = None
+denoiser = None
+
+
+
 
 @app.route('/')
 def hello():
