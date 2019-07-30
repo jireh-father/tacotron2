@@ -7,10 +7,7 @@
 <body>
 <h1>음성 합성</h1>
 <form method="get" action="/simple_synth">
-    <input type="text" name="input_text" {% if input_text %}value="{{input_text}}"{% endif %} />
-    <input type="text" name="sigma" {% if sigma %}value="{{sigma}}"{% else %}value="0.8"{% endif %} />
-    <input type="text" name="sampling_rate" {% if sampling_rate %}value="{{sampling_rate}}"{% else %}value="22050"{% endif %} />
-    <input type="text" name="denoiser_strength" {% if denoiser_strength %}value="{{denoiser_strength}}"{% else %}value="0.0"{% endif %} />
+    <input type="text" name="input_text"  />
     <input type="submit" value="음성 합성">
 
     {% if synth_wav_path %}
