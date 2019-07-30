@@ -8,14 +8,14 @@
 <h1>음성 합성</h1>
 <form method="get" action="simple_synth">
     <h2>입력</h2>
-    <input type="text" name="input_text" {% if input_text %}value="{{input_text}}"{% endif %} />
+    입력 텍스트<input type="text" name="input_text" {% if input_text %}value="{{input_text}}"{% endif %} width="500"/>
     <br/>
-    <input type="text" name="sigma" value="{{sigma}}" />
+    Sigma<input type="text" name="sigma" value="{{sigma}}" />
     <br/>
-    <input type="text" name="sampling_rate" value="{{sampling_rate}}" />
+    Sampling Rate<input type="text" name="sampling_rate" value="{{sampling_rate}}" />
     <br/>
-    <input type="text" name="denoiser_strength" value="{{denoiser_strength}}" />
-    <br/>
+    Denoiser Strength <input type="text" name="denoiser_strength" value="{{denoiser_strength}}" />
+    <br/><br/>
     <input type="submit" value="음성 합성">
 
 
