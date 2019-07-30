@@ -15,10 +15,10 @@
 
     {% if synth_wav_path %}
     <audio controls>
-        <source src="{{url_for('static', filename='synth_wav')}}/{{synth_wav_path}}" type="audio/wav">
+        <source src="ilseo/{{url_for('static', filename='synth_wav')}}/{{synth_wav_path}}" type="audio/wav">
         Your browser does not support the audio tag.
     </audio>
-    <a href="{{url_for('static', filename='synth_wav')}}/{{synth_wav_path}}" target="_blank">결과 파일 다운로드</a>
+    <a href="ilseo/{{url_for('static', filename='synth_wav')}}/{{synth_wav_path}}" target="_blank">결과 파일 다운로드</a>
     {% endif %}
 </form>
 </body>

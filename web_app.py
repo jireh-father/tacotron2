@@ -92,7 +92,7 @@ def simple_synth():
     write(audio_path, sampling_rate, audio)
 
     return render_template("simple_synth.html", input_text=text,
-                           synth_wav_path=os.path.join(os.path.basename(SYNTH_DIR), filename),
+                           synth_wav_path=filename,
                            sigma=sigma, sampling_rate=sampling_rate, denoiser_strength=denoiser_strength)
 
 
