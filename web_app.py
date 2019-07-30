@@ -99,7 +99,7 @@ def simple_synth():
 #
 @app.route('/download/<path:filename>', methods=['GET', 'POST'])
 def download(filename):
-    return send_from_directory(directory=SYNTH_DIR, filename=filename)
+    return send_from_directory(directory=SYNTH_DIR, filename=filename, as_attachment=True)
 
 
 if __name__ == "__main__":
