@@ -7,19 +7,27 @@
 <body>
 <h1>음성 합성</h1>
 <form method="get" action="simple_synth">
+    <h2>입력</h2>
     <input type="text" name="input_text" {% if input_text %}value="{{input_text}}"{% endif %} />
+    <br/>
     <input type="text" name="sigma" value="{{sigma}}" />
+    <br/>
     <input type="text" name="sampling_rate" value="{{sampling_rate}}" />
+    <br/>
     <input type="text" name="denoiser_strength" value="{{denoiser_strength}}" />
+    <br/>
     <input type="submit" value="음성 합성">
 
-    {% if synth_wav_path %}
-    <audio controls>
-        <source src="/ilseo{{url_for('static', filename='synth_wav')}}/{{synth_wav_path}}" type="audio/wav">
-        Your browser does not support the audio tag.
-    </audio>
-    <a href="download/{{synth_wav_path}}" target="_blank">결과 파일 다운로드</a>
-    {% endif %}
+
 </form>
+{% if synth_wav_path %}
+<h2>결과</h2>
+<audio controls>
+    <source src="/ilseo{{url_for('static', filename='synth_wav')}}/{{synth_wav_path}}" type="audio/wav">
+    Your browser does not support the audio tag.
+</audio>
+<br/>
+<a href="download/{{synth_wav_path}}" target="_blank">결과 파일 다운로드</a>
+{% endif %}
 </body>
 </html>
