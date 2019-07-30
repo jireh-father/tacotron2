@@ -1,3 +1,5 @@
+import sys
+sys.path.append('waveglow/')
 from flask import Flask, render_template, redirect, url_for, request
 import numpy as np
 import os
