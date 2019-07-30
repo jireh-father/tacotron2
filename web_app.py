@@ -12,10 +12,16 @@ from text import text_to_sequence
 from scipy.io.wavfile import write
 import uuid
 
-checkpoint_dir = './experiments/'
 SYNTH_DIR = 'static/synth_wav'
 
-app = Flask(__name__)
+def create_app():
+    app = Flask(__name__)
+    def run_on_start():
+        init_model()
+    run_on_start()
+    return app
+app = create_app()
+# app = Flask(__name__)
 
 tacotron2_model = None
 waveglow_model = None
@@ -47,6 +53,11 @@ def init_model():
         k.float()
     if denoiser_strength > 0:
         denoiser = Denoiser(waveglow_model)
+
+@app.route('/')
+def hello():
+    name = request.args.get("name", "World")
+    return "Hello, %s!" % name
 
 
 @app.route("/simple_synth")
