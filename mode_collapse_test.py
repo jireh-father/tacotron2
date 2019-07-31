@@ -20,21 +20,21 @@ def main(tacotron2_path, waveglow_path, sigma, output_dir, sampling_rate, denois
     hparams = create_hparams()
     hparams.sampling_rate = sampling_rate
 
-    torch.manual_seed(hparams.seed)
-    torch.cuda.manual_seed(hparams.seed)
-    random.seed(hparams.seed)
-
-    model = load_model(hparams)
-    model.load_state_dict(torch.load(tacotron2_path)['state_dict'])
-    _ = model.cuda().eval().half()
-
-    waveglow = torch.load(waveglow_path)['model']
-    waveglow = waveglow.remove_weightnorm(waveglow)
-    waveglow.cuda().eval().half()
-    for k in waveglow.convinv:
-        k.float()
-    if denoiser_strength > 0:
-        denoiser = Denoiser(waveglow)
+    # torch.manual_seed(hparams.seed)
+    # torch.cuda.manual_seed(hparams.seed)
+    # random.seed(hparams.seed)
+    #
+    # model = load_model(hparams)
+    # model.load_state_dict(torch.load(tacotron2_path)['state_dict'])
+    # _ = model.cuda().eval().half()
+    #
+    # waveglow = torch.load(waveglow_path)['model']
+    # waveglow = waveglow.remove_weightnorm(waveglow)
+    # waveglow.cuda().eval().half()
+    # for k in waveglow.convinv:
+    #     k.float()
+    # if denoiser_strength > 0:
+    #     denoiser = Denoiser(waveglow)
 
     sequence = np.array(text_to_sequence(text, ['korean_cleaners']))[None, :]
     print(sequence)
