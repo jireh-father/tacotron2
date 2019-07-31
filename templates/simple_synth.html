@@ -3,23 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <title>Simple Speech Synthesis</title>
+    <script src="url_for('static/js', filename='jquery-3.4.1.slim.min.js'"></script>
 </head>
 <body>
 <h1>음성 합성</h1>
 <p>사용법: 아래 '입력 텍스트'란에 임의의 텍스트를 입력 후 '음성 합성'버튼을 클릭하세요.</p>
 <form method="get" action="simple_synth">
     <h2>입력</h2>
-    입력 텍스트<input type="text" name="input_text" {% if input_text %}value="{{input_text}}"{% endif %} style="width: 800px;"/>
-    <br/>
 
-    <h2>파라미터(기본값으로 사용하시면 됩니다.)</h2>
+    입력 텍스트<input type="text" id="input_text" name="input_text" {% if input_text %}value="{{input_text}}"{% endif %} style="width: 800px;"/>
+    <br/>
+    <h3>예제</h3>
+    <p>지난해 삼월 김전장관의 동료인 장동련 홍익대 교수가 민간 자문단장으로 위촉되면서 본격적인 공모와 개발 작업에 들어갔다.</p>
+    <p>그래도 권위있는 아이비리그 명문대학의 발표이니 믿어야 할까요?</p>
+    <p>안녕하시렵니까? 저는 인공지능이예요. 말투가 이런건 동화책 읽는것만 배웠기 때문이예요! 이해해주세요.</p>
+    <p>그는 괜찮은 척하려고 애쓰는 것 같았다.</p>
+    <p>[설빙](슈퍼브랜드데이) 딸기치즈메론(시즌한정).</p>
+    <p> 파파스토이 풀페이스 스노쿨링 마스크 일체형 물놀이.</p>
+    <h2>파라미터(기본값으로 사용하셔도 됩니다.)</h2>
     Sigma<input type="text" name="sigma" value="{{sigma}}" />
     <br/>
     Sampling Rate<input type="text" name="sampling_rate" value="{{sampling_rate}}" />
     <br/>
     Denoiser Strength <input type="text" name="denoiser_strength" value="{{denoiser_strength}}" />
     <br/><br/>
-    <input type="submit" value="음성 합성">
+    <input type="submit" value="음성 합성" id="synth_button">
 
 
 </form>
