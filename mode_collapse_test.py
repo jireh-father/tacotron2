@@ -35,6 +35,10 @@ def main(tacotron2_path, waveglow_path, sigma, output_dir, sampling_rate, denois
         denoiser = Denoiser(waveglow)
 
     sequence = np.array(text_to_sequence(text, ['english_cleaners']))[None, :]
+    sequence2 = np.array(text_to_sequence(text, ['english_cleaners']))[None, :]
+    sequence3 = np.array(text_to_sequence(text, ['english_cleaners']))[None, :]
+    print(np.array_equal(sequence, sequence2))
+    print(np.array_equal(sequence, sequence3))
     sequence = torch.autograd.Variable(
         torch.from_numpy(sequence)).cuda().long()
 
