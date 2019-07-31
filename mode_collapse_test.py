@@ -39,16 +39,46 @@ def main(tacotron2_path, waveglow_path, sigma, output_dir, sampling_rate, denois
     mel_outputs, mel_outputs_postnet2, _, alignments = model.inference(sequence)
     mel_outputs, mel_outputs_postnet3, _, alignments = model.inference(sequence)
     MAX_WAV_VALUE = 32768.0
-
-    if mel_outputs_postnet == mel_outputs_postnet2:
+    print(mel_outputs_postnet.shape)
+    print(mel_outputs_postnet2.shape)
+    print(mel_outputs_postnet3.shape)
+    print(mel_outputs_postnet.cpu().data.numpy()[0][0][:30])
+    print(mel_outputs_postnet2.cpu().data.numpy()[0][0][:30])
+    if np.array_equal(mel_outputs_postnet.cpu().data.numpy(), mel_outputs_postnet2.cpu().data.numpy()):
         print("same!!")
     else:
         print("different!!")
 
-    if mel_outputs_postnet == mel_outputs_postnet3:
+    if np.array_equal(mel_outputs_postnet.cpu().data.numpy(), mel_outputs_postnet3.cpu().data.numpy()):
         print("same!!")
     else:
         print("different!!")
+
+    with torch.no_grad():
+        audio = waveglow.infer(mel_outputs_postnet, sigma=sigma)  # 0.666)
+        audio = audio.squeeze()
+        audio = audio.cpu().numpy()
+        audio2 = waveglow.infer(mel_outputs_postnet, sigma=sigma)  # 0.666)
+        audio2 = audio2.squeeze()
+        audio2 = audio2.cpu().numpy()
+
+        audio3 = waveglow.infer(mel_outputs_postnet, sigma=sigma)  # 0.666)
+        audio3 = audio3.squeeze()
+        audio3 = audio3.cpu().numpy()
+
+        print(audio[:30])
+        print(audio2[:30])
+        print(audio3[:30])
+
+        if np.array_equal(audio, audio2):
+            print("same!!")
+        else:
+            print("different!!")
+
+        if np.array_equal(audio, audio3):
+            print("same!!")
+        else:
+            print("different!!")
 
 
 if __name__ == "__main__":
