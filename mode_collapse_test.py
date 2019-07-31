@@ -12,6 +12,7 @@ from text import text_to_sequence
 from denoiser import Denoiser
 import glob
 import datetime
+import random
 
 
 def main(tacotron2_path, waveglow_path, sigma, output_dir, sampling_rate, denoiser_strength, text, file_idx,
@@ -21,6 +22,7 @@ def main(tacotron2_path, waveglow_path, sigma, output_dir, sampling_rate, denois
 
     torch.manual_seed(hparams.seed)
     torch.cuda.manual_seed(hparams.seed)
+    random.seed(hparams.seed)
 
     model = load_model(hparams)
     model.load_state_dict(torch.load(tacotron2_path)['state_dict'])
