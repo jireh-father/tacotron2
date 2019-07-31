@@ -1,5 +1,6 @@
 import tensorflow as tf
-from text import symbols
+# from text import symbols
+from text import symbols_korean as symbols
 
 
 def create_hparams(hparams_string=None, verbose=False):
@@ -31,7 +32,7 @@ def create_hparams(hparams_string=None, verbose=False):
         num_workers=4,
 
         ################################
-        # Audio Parameters             #
+        # Audio Parameters             #0
         ################################
         max_wav_value=32768.0,
         sampling_rate=22050,
