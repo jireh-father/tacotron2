@@ -6,7 +6,7 @@
     <script src="/ilseo{{url_for('static', filename='js')}}/jquery-3.4.1.slim.min.js"></script>
     <script>
         function auto_synth(this_obj){
-            $("#input_text").val($(this_obj).next().val());
+            $("#input_text").val($(this_obj).next().text());
             $("#synth_button").click();
         }
     </script>
