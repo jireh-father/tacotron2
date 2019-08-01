@@ -62,21 +62,11 @@ def main(tacotron2_path, waveglow_path, sigma, output_dir, sampling_rate, denois
     #     print("different!!")
     #
     with torch.no_grad():
-        audio = waveglow.infer(mel_outputs_postnet, sigma=sigma)  # 0.666)
-        audio = audio.squeeze()
-        print(audio.shape)
+        for i in range(10):
+            audio = waveglow.infer(mel_outputs_postnet, sigma=sigma)  # 0.666)
+            audio = audio.squeeze()
+            print(audio.shape)
 
-        audio = waveglow.infer(mel_outputs_postnet, sigma=sigma)  # 0.666)
-        audio = audio.squeeze()
-        print(audio.shape)
-
-        audio = waveglow.infer(mel_outputs_postnet, sigma=sigma)  # 0.666)
-        audio = audio.squeeze()
-        print(audio.shape)
-
-        audio = waveglow.infer(mel_outputs_postnet, sigma=sigma)  # 0.666)
-        audio = audio.squeeze()
-        print(audio.shape)
         # audio = audio.cpu().numpy()
         # audio2 = waveglow.infer(mel_outputs_postnet, sigma=sigma)  # 0.666)
         # audio2 = audio2.squeeze()
