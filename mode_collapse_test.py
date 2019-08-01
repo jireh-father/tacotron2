@@ -45,7 +45,9 @@ def main(tacotron2_path, waveglow_path, sigma, output_dir, sampling_rate, denois
     sequence = torch.autograd.Variable(
         torch.from_numpy(sequence)).cuda().long()
 
-    mel_outputs, mel_outputs_postnet, _, alignments = model.inference(sequence)
+    for i in range(10):
+        mel_outputs, mel_outputs_postnet, _, alignments = model.inference(sequence)
+        print(mel_outputs_postnet.shape)
 
 
     MAX_WAV_VALUE = 32768.0
@@ -61,11 +63,13 @@ def main(tacotron2_path, waveglow_path, sigma, output_dir, sampling_rate, denois
     # else:
     #     print("different!!")
     #
-    with torch.no_grad():
-        for i in range(10):
-            audio = waveglow.infer(mel_outputs_postnet, sigma=sigma)  # 0.666)
-            audio = audio.squeeze()
-            print(audio.shape)
+    # with torch.no_grad():
+    #     for i in range(10):
+    #         audio = waveglow.infer(mel_outputs_postnet, sigma=sigma)  # 0.666)
+    #         audio = audio.squeeze()
+    #         audio = audio.cpu().numpy()
+    #         audio = audio.astype('int16')
+    #         print(audio.shape)
 
         # audio = audio.cpu().numpy()
         # audio2 = waveglow.infer(mel_outputs_postnet, sigma=sigma)  # 0.666)
