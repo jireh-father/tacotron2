@@ -16,4 +16,4 @@ _letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyzㄱㄲㄴㄷㄸ�
 _arpabet = ['@' + s for s in cmudict.valid_symbols]
 
 # Export all symbols:
-symbols_korean = [_pad] + list(_special) + list(_punctuation) + list(_letters) + _arpabet
+symbols = [_pad] + list(_special) + list(_punctuation) + list(_letters) + _arpabet
