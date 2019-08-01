@@ -42,8 +42,8 @@ def main(tacotron2_path, waveglow_path, sigma, output_dir, sampling_rate, denois
     # sequence3 = np.array(text_to_sequence(text, ['korean_cleaners']))[None, :]
     # print(np.array_equal(sequence, sequence2))
     # print(np.array_equal(sequence, sequence3))
-    # sequence = torch.autograd.Variable(
-    #     torch.from_numpy(sequence)).cuda().long()
+    sequence = torch.autograd.Variable(
+        torch.from_numpy(sequence)).cuda().long()
 
     mel_outputs, mel_outputs_postnet, _, alignments = model.inference(sequence)
 
