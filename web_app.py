@@ -25,11 +25,21 @@ def init_model():
     global denoiser
 
     tacotron2_path = "outdir_finetune/checkpoint_62500"
+    #    tacotron2_path = "outdir_korean/checkpoint_8800"
+    #    tacotron2_path = "../models/tacotron2/outdir_korean/checkpoint_25000"
+    #    tacotron2_path = "../tacotron2-pytorch/outdir/checkpoint_15000"
+    #    tacotron2_path = "../models/tacotron2/outdir_korean/checkpoint_15000"
+    #    tacotron2_path = "outdir_lj_korean/checkpoint_5000"
+    #    tacotron2_path = "outdir_longtrain/checkpoint_439500"
     waveglow_path = "../waveglow-fix/checkpoints_finetune/waveglow_478000"
+    #   waveglow_path = "../waveglow/checkpoints/waveglow_335000"
+    # waveglow_path = "../waveglow-fix/checkpoints_longtrain/waveglow_484000"
     sampling_rate = 22050
     denoiser_strength = 0.0
     hparams = create_hparams()
     hparams.sampling_rate = sampling_rate
+    hparams.hp_attention_dropout = 0.0
+    hparams.p_decoder_dropout = 0.0
 
     tacotron2_model = load_model(hparams)
     tacotron2_model.load_state_dict(torch.load(tacotron2_path)['state_dict'])
@@ -68,6 +78,8 @@ def simple_synth():
 
     start = time.time()
     sequence = np.array(text_to_sequence(text, ['transliteration_cleaners']))[None, :]
+    #    sequence = np.array(text_to_sequence(text, ['english_cleaners']))[None, :]
+    #    sequence = np.array(text_to_sequence(text, ['korean_cleaners']))[None, :]
     sequence = torch.autograd.Variable(
         torch.from_numpy(sequence)).cuda().long()
 
