@@ -45,19 +45,17 @@ def main(tacotron2_path, waveglow_path, sigma, output_dir, sampling_rate, denois
         torch.from_numpy(sequence)).cuda().long()
 
     mel_outputs, mel_outputs_postnet, _, alignments = model.inference(sequence)
-    print(mel_outputs_postnet.shape)
 
-    mel_outputs, mel_outputs_postnet, _, alignments = model.inference(sequence)
-    print(mel_outputs_postnet.shape)
+    mel_outputs, mel_outputs_postnet2, _, alignments = model.inference(sequence)
 
 
     MAX_WAV_VALUE = 32768.0
-    # print(mel_outputs_postnet.cpu().data.numpy()[0][0][:30])
-    # print(mel_outputs_postnet2.cpu().data.numpy()[0][0][:30])
-    # if np.array_equal(mel_outputs_postnet.cpu().data.numpy(), mel_outputs_postnet2.cpu().data.numpy()):
-    #     print("same!!")
-    # else:
-    #     print("different!!")
+    print(mel_outputs_postnet.cpu().data.numpy()[0][0][:30])
+    print(mel_outputs_postnet2.cpu().data.numpy()[0][0][:30])
+    if np.array_equal(mel_outputs_postnet.cpu().data.numpy(), mel_outputs_postnet2.cpu().data.numpy()):
+        print("same!!")
+    else:
+        print("different!!")
     #
     # if np.array_equal(mel_outputs_postnet.cpu().data.numpy(), mel_outputs_postnet3.cpu().data.numpy()):
     #     print("same!!")
