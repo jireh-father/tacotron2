@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Simple Speech Synthesis</title>
-    <script src="/ilseo{{url_for('static', filename='js')}}/jquery-3.4.1.slim.min.js"></script>
+    <script src="static/js/jquery-3.4.1.slim.min.js"></script>
     <script>
         function auto_synth(this_obj){
             $("#input_text").val($(this_obj).next().text());
@@ -41,7 +41,7 @@
 <h2>결과</h2>
 <p>소요시간: {{elapsed}} seconds </p>
 <audio controls>
-    <source src="/ilseo{{url_for('static', filename='synth_wav')}}/{{synth_wav_path}}" type="audio/wav">
+    <source src="static/synth_wav/{{synth_wav_path}}" type="audio/wav">
     Your browser does not support the audio tag.
 </audio>
 <br/>
