@@ -16,8 +16,7 @@ import random
 
 
 def main(tacotron2_path, waveglow_path, sigma, output_dir, sampling_rate, denoiser_strength, text, file_idx,
-         inference_name, zip_file):
-    hparams = create_hparams()
+         inference_name, zip_file, hparams):
     hparams.sampling_rate = sampling_rate
 
     torch.manual_seed(hparams.seed)
@@ -48,6 +47,9 @@ def main(tacotron2_path, waveglow_path, sigma, output_dir, sampling_rate, denois
     mel_outputs, mel_outputs_postnet, _, alignments = model.inference(sequence)
     print(mel_outputs_postnet.shape)
 
+    mel_outputs, mel_outputs_postnet, _, alignments = model.inference(sequence)
+    print(mel_outputs_postnet.shape)
+
 
     MAX_WAV_VALUE = 32768.0
     # print(mel_outputs_postnet.cpu().data.numpy()[0][0][:30])
@@ -62,13 +64,13 @@ def main(tacotron2_path, waveglow_path, sigma, output_dir, sampling_rate, denois
     # else:
     #     print("different!!")
     #
-    with torch.no_grad():
-        for i in range(10):
-            audio = waveglow.infer(mel_outputs_postnet, sigma=sigma)  # 0.666)
-            audio = audio.squeeze()
-            audio = audio.cpu().numpy()
-            audio = audio.astype('int16')
-            print(audio.shape)
+    # with torch.no_grad():
+    #     for i in range(10):
+    #         audio = waveglow.infer(mel_outputs_postnet, sigma=sigma)  # 0.666)
+    #         audio = audio.squeeze()
+    #         audio = audio.cpu().numpy()
+    #         audio = audio.astype('int16')
+    #         print(audio.shape)
 
         # audio = audio.cpu().numpy()
         # audio2 = waveglow.infer(mel_outputs_postnet, sigma=sigma)  # 0.666)
@@ -108,7 +110,13 @@ if __name__ == "__main__":
     parser.add_argument("-d", "--denoiser_strength", default=0.0, type=float,
                         help='Removes model bias. Start with 0.1 and adjust')
 
+    parser.add_argument('--hparams', type=str,
+                        required=False, help='comma separated name=value pairs')
+
     args = parser.parse_args()
+    hparams = create_hparams(args.hparams)
+
+    # args = parser.parse_args()
 
     if not os.path.isdir(args.output_dir):
         os.makedirs(args.output_dir)
@@ -139,7 +147,7 @@ if __name__ == "__main__":
             #     os.path.join(args.output_dir, infer_name + ".zip"), 'w')
             for i, text in enumerate(text_list):
                 main(t2_model_path, wg_model_path, args.sigma, args.output_dir,
-                     args.sampling_rate, args.denoiser_strength, text, i, infer_name, zip_file)
+                     args.sampling_rate, args.denoiser_strength, text, i, infer_name, zip_file, hparams)
 
             # zip_file.close()
     zip_file.close()
