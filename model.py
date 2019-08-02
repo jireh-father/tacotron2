@@ -87,9 +87,8 @@ class Attention(nn.Module):
 
 
 class Prenet(nn.Module):
-    def __init__(self, in_dim, sizes, training):
+    def __init__(self, in_dim, sizes):
         super(Prenet, self).__init__()
-        self.training = training
         in_sizes = [in_dim] + sizes[:-1]
         self.layers = nn.ModuleList(
             [LinearNorm(in_size, out_size, bias=False)
@@ -97,7 +96,7 @@ class Prenet(nn.Module):
 
     def forward(self, x):
         for linear in self.layers:
-            x = F.dropout(F.relu(linear(x)), p=0.5, training=self.training)
+            x = F.dropout(F.relu(linear(x)), p=0.5, training=True)
         return x
 
 
@@ -108,7 +107,6 @@ class Postnet(nn.Module):
 
     def __init__(self, hparams):
         super(Postnet, self).__init__()
-        self.training = hparams.training
         self.convolutions = nn.ModuleList()
 
         self.convolutions.append(
@@ -155,7 +153,6 @@ class Encoder(nn.Module):
     """
     def __init__(self, hparams):
         super(Encoder, self).__init__()
-        self.training = hparams.training
         convolutions = []
         for _ in range(hparams.encoder_n_convolutions):
             conv_layer = nn.Sequential(
@@ -206,7 +203,6 @@ class Encoder(nn.Module):
 class Decoder(nn.Module):
     def __init__(self, hparams):
         super(Decoder, self).__init__()
-        self.training = hparams.training
         self.n_mel_channels = hparams.n_mel_channels
         self.n_frames_per_step = hparams.n_frames_per_step
         self.encoder_embedding_dim = hparams.encoder_embedding_dim
@@ -220,7 +216,7 @@ class Decoder(nn.Module):
 
         self.prenet = Prenet(
             hparams.n_mel_channels * hparams.n_frames_per_step,
-            [hparams.prenet_dim, hparams.prenet_dim], hparams.training)
+            [hparams.prenet_dim, hparams.prenet_dim])
 
         self.attention_rnn = nn.LSTMCell(
             hparams.prenet_dim + hparams.encoder_embedding_dim,

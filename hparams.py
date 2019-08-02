@@ -75,8 +75,6 @@ def create_hparams(hparams_string=None, verbose=False):
         postnet_kernel_size=5,
         postnet_n_convolutions=5,
 
-        training=True,
-
         ################################
         # Optimization Hyperparameters #
         ################################
