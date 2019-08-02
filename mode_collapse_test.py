@@ -113,6 +113,7 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
     hparams = create_hparams(args.hparams)
+    hparams.training = False
 
     # args = parser.parse_args()
 
