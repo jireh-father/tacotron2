@@ -17,6 +17,7 @@ import datetime
 def main(tacotron2_path, waveglow_path, sigma, output_dir, sampling_rate, denoiser_strength, text, file_idx,
          inference_name, zip_file):
     hparams = create_hparams()
+    hparams.training = False
     hparams.sampling_rate = sampling_rate
 
     model = load_model(hparams)

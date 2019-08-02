@@ -1,6 +1,5 @@
 import tensorflow as tf
-# from text import symbols
-from text import symbols_korean as symbols
+from text import symbols
 
 
 def create_hparams(hparams_string=None, verbose=False):
@@ -75,6 +74,8 @@ def create_hparams(hparams_string=None, verbose=False):
         postnet_embedding_dim=512,
         postnet_kernel_size=5,
         postnet_n_convolutions=5,
+
+        training=True,
 
         ################################
         # Optimization Hyperparameters #
