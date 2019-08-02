@@ -38,8 +38,7 @@ def init_model():
     denoiser_strength = 0.0
     hparams = create_hparams()
     hparams.sampling_rate = sampling_rate
-    hparams.hp_attention_dropout = 0.0
-    hparams.p_decoder_dropout = 0.0
+    hparams.training = False
 
     tacotron2_model = load_model(hparams)
     tacotron2_model.load_state_dict(torch.load(tacotron2_path)['state_dict'])
