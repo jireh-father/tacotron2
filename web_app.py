@@ -1,5 +1,6 @@
 import sys
 sys.path.append('waveglow/')
+import glow
 from flask import Flask, render_template, redirect, url_for, request, send_from_directory
 import numpy as np
 import os
@@ -44,9 +45,20 @@ def init_model():
     tacotron2_model.load_state_dict(torch.load(tacotron2_path)['state_dict'])
     _ = tacotron2_model.cuda().eval().half()
 
-    waveglow_model = torch.load(waveglow_path)['model']
+    with open("waveglow/config.json") as f:
+        data = f.read()
+    import json
+    config = json.loads(data)
+    waveglow_config = config["waveglow_config"]
+
+    waveglow_model = glow.WaveGlow(**waveglow_config)
+    waveglow_model.load_state_dict(torch.load(waveglow_path)['state_dict'])
     waveglow_model = waveglow_model.remove_weightnorm(waveglow_model)
     waveglow_model.cuda().eval().half()
+
+    # waveglow_model = torch.load(waveglow_path)['model']
+    # waveglow_model = waveglow_model.remove_weightnorm(waveglow_model)
+    # waveglow_model.cuda().eval().half()
     for k in waveglow_model.convinv:
         k.float()
     if denoiser_strength > 0:
