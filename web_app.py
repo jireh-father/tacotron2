@@ -1,10 +1,10 @@
 import sys
 sys.path.append('waveglow/')
-import glow
+# import glow
 from flask import Flask, render_template, redirect, url_for, request, send_from_directory
 import numpy as np
 import os
-
+from pydub import AudioSegment
 from hparams import create_hparams
 from train import load_model
 import torch
@@ -45,20 +45,25 @@ def init_model():
     tacotron2_model.load_state_dict(torch.load(tacotron2_path)['state_dict'])
     _ = tacotron2_model.cuda().eval().half()
 
-    with open("waveglow/config.json") as f:
-        data = f.read()
-    import json
-    config = json.loads(data)
-    waveglow_config = config["waveglow_config"]
-
-    waveglow_model = glow.WaveGlow(**waveglow_config)
-    waveglow_model.load_state_dict(torch.load(waveglow_path)['state_dict'])
-    waveglow_model = waveglow_model.remove_weightnorm(waveglow_model)
-    waveglow_model.cuda().eval().half()
-
-    # waveglow_model = torch.load(waveglow_path)['model']
+    # with open("waveglow/config.json") as f:
+    #     data = f.read()
+    # import json
+    # config = json.loads(data)
+    # waveglow_config = config["waveglow_config"]
+    #
+    # waveglow_model = glow.WaveGlow(**waveglow_config)
+    #
+    # checkpoint_dict = torch.load(waveglow_path, map_location='cpu')
+    # model_for_loading = checkpoint_dict['model']
+    # waveglow_model.load_state_dict(model_for_loading.state_dict())
+    #
+    # # waveglow_model.load_state_dict(torch.load(waveglow_path)['state_dict'])
     # waveglow_model = waveglow_model.remove_weightnorm(waveglow_model)
     # waveglow_model.cuda().eval().half()
+
+    waveglow_model = torch.load(waveglow_path)['model']
+    waveglow_model = waveglow_model.remove_weightnorm(waveglow_model)
+    waveglow_model.cuda().eval().half()
     for k in waveglow_model.convinv:
         k.float()
     if denoiser_strength > 0:
@@ -132,6 +137,11 @@ def add_header(r):
 def download(filename):
     return send_from_directory(directory=SYNTH_DIR, filename=filename, as_attachment=True)
 
+@app.route('/download_mp3/<path:filename>', methods=['GET', 'POST'])
+def download(filename):
+
+    AudioSegment.from_wav(os.path.join(SYNTH_DIR, filename)).export(os.path.join(SYNTH_DIR, os.path.splitext(filename)[0] + ".mp3"), format="mp3")
+    return send_from_directory(directory=SYNTH_DIR, filename=filename, as_attachment=True)
 
 if __name__ == "__main__":
     app.run(debug=True, threaded=False)
