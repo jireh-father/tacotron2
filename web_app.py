@@ -138,7 +138,7 @@ def download(filename):
     return send_from_directory(directory=SYNTH_DIR, filename=filename, as_attachment=True)
 
 @app.route('/download_mp3/<path:filename>', methods=['GET', 'POST'])
-def download(filename):
+def download_mp3(filename):
 
     AudioSegment.from_wav(os.path.join(SYNTH_DIR, filename)).export(os.path.join(SYNTH_DIR, os.path.splitext(filename)[0] + ".mp3"), format="mp3")
     return send_from_directory(directory=SYNTH_DIR, filename=filename, as_attachment=True)
