@@ -41,8 +41,7 @@ class TextMelLoader(torch.utils.data.Dataset):
 
     def get_speaker_embedding(self, filename):
         speaker_embedding_np = np.load(filename)
-        speaker_embedding_np = torch.autograd.Variable(torch.from_numpy(speaker_embedding_np),
-                                                       requires_grad=False).cuda().long()
+        speaker_embedding_np = torch.autograd.Variable(torch.from_numpy(speaker_embedding_np).cuda(), requires_grad=False)
         speaker_embedding_np = speaker_embedding_np.half() if self.is_fp16 else speaker_embedding_np
         return speaker_embedding_np
 
@@ -58,7 +57,7 @@ class TextMelLoader(torch.utils.data.Dataset):
             melspec = torch.load(filename)
             # mel = torch.autograd.Variable(mel.cuda())
             # mel = torch.unsqueeze(mel, 0)
-            # melspec = mel.half() if self.is_fp16 else mel
+            # melspec = mel.half() if self.is_fp16 else melsss
 
             # audio_norm = audio_norm.unsqueeze(0)
             # audio_norm = torch.autograd.Variable(audio_norm, requires_grad=False)
