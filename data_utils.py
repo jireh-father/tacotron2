@@ -6,6 +6,7 @@ import torch.utils.data
 import layers
 from utils import load_wav_to_torch, load_filepaths_and_text
 from text import text_to_sequence
+import os
 
 
 class TextMelLoader(torch.utils.data.Dataset):
@@ -14,12 +15,14 @@ class TextMelLoader(torch.utils.data.Dataset):
         2) normalizes text and converts them to sequences of one-hot vectors
         3) computes mel-spectrograms from audio files.
     """
+
     def __init__(self, audiopaths_and_text, hparams):
         self.audiopaths_and_text = load_filepaths_and_text(audiopaths_and_text)
         self.text_cleaners = hparams.text_cleaners
         self.max_wav_value = hparams.max_wav_value
         self.sampling_rate = hparams.sampling_rate
         self.load_mel_from_disk = hparams.load_mel_from_disk
+        self.speaker_embedding_dir = hparams.speaker_embedding_dir
         self.stft = layers.TacotronSTFT(
             hparams.filter_length, hparams.hop_length, hparams.win_length,
             hparams.n_mel_channels, hparams.sampling_rate, hparams.mel_fmin,
@@ -29,14 +32,19 @@ class TextMelLoader(torch.utils.data.Dataset):
 
     def get_mel_text_pair(self, audiopath_and_text):
         # separate filename and text
-        audiopath, text, speaker_embedding_path = audiopath_and_text[0], audiopath_and_text[1], audiopath_and_text[2]
+        audiopath, text = audiopath_and_text[0], audiopath_and_text[1]
+        speaker_embedding_path = os.path.join(self.speaker_embedding_dir, os.path.basename(audiopath_and_text[0]))
         text = self.get_text(text)
         mel = self.get_mel(audiopath)
         speaker_embedding = self.get_speaker_embedding(speaker_embedding_path)
         return (text, mel, speaker_embedding)
 
     def get_speaker_embedding(self, filename):
-        return torch.load(filename)
+        speaker_embedding_np = np.load(filename)
+        speaker_embedding_np = torch.autograd.Variable(torch.from_numpy(speaker_embedding_np),
+                                                       requires_grad=False).cuda().long()
+        speaker_embedding_np = speaker_embedding_np.half() if self.is_fp16 else speaker_embedding_np
+        return speaker_embedding_np
 
     def get_mel(self, filename):
         if not self.load_mel_from_disk:
@@ -78,6 +86,7 @@ class TextMelLoader(torch.utils.data.Dataset):
 class TextMelCollate():
     """ Zero-pads model inputs and targets based on number of frames per setep
     """
+
     def __init__(self, n_frames_per_step):
         self.n_frames_per_step = n_frames_per_step
 
@@ -111,14 +120,14 @@ class TextMelCollate():
         mel_padded.zero_()
         gate_padded = torch.FloatTensor(len(batch), max_target_len)
         gate_padded.zero_()
-        speaker_embeddings = torch.FloatTensor(len(batch), batch[2])
+        speaker_embeddings = torch.FloatTensor(len(batch), batch[0][2].size(0))
         output_lengths = torch.LongTensor(len(batch))
         for i in range(len(ids_sorted_decreasing)):
             mel = batch[ids_sorted_decreasing[i]][1]
             mel_padded[i, :, :mel.size(1)] = mel
-            gate_padded[i, mel.size(1)-1:] = 1
+            gate_padded[i, mel.size(1) - 1:] = 1
             output_lengths[i] = mel.size(1)
-            speaker_embeddings = batch[:, 2]
+            speaker_embeddings[i] = batch[ids_sorted_decreasing[i]][2]
 
         return text_padded, input_lengths, mel_padded, gate_padded, \
-            output_lengths
+               output_lengths, speaker_embeddings

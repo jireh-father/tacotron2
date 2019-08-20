@@ -457,6 +457,7 @@ class Tacotron2(nn.Module):
     def __init__(self, hparams):
         super(Tacotron2, self).__init__()
         self.mask_padding = hparams.mask_padding
+        self.encoder_embedding_dim = hparams.encoder_embedding_dim
         self.fp16_run = hparams.fp16_run
         self.n_mel_channels = hparams.n_mel_channels
         self.n_frames_per_step = hparams.n_frames_per_step
@@ -496,12 +497,16 @@ class Tacotron2(nn.Module):
         return outputs
 
     def forward(self, inputs):
-        text_inputs, text_lengths, mels, max_len, output_lengths = inputs
+        #speaker_embeddings (batch_size,512)
+        text_inputs, text_lengths, mels, max_len, output_lengths, speaker_embeddings = inputs
         text_lengths, output_lengths = text_lengths.data, output_lengths.data
 
         embedded_inputs = self.embedding(text_inputs).transpose(1, 2)
 
         encoder_outputs = self.encoder(embedded_inputs, text_lengths)
+
+        speaker_embeddings = speaker_embeddings.view(-1, 1, self.encoder_embedding_dim)
+        encoder_outputs = torch.cat((encoder_outputs, speaker_embeddings), 1)
 
         mel_outputs, gate_outputs, alignments = self.decoder(
             encoder_outputs, mels, memory_lengths=text_lengths)
@@ -513,9 +518,13 @@ class Tacotron2(nn.Module):
             [mel_outputs, mel_outputs_postnet, gate_outputs, alignments],
             output_lengths)
 
-    def inference(self, inputs):
+    def inference(self, inputs, speaker_embeddings):
         embedded_inputs = self.embedding(inputs).transpose(1, 2)
         encoder_outputs = self.encoder.inference(embedded_inputs)
+
+        speaker_embeddings = speaker_embeddings.view(-1, 1, self.encoder_embedding_dim)
+        encoder_outputs = torch.cat((encoder_outputs, speaker_embeddings), 1)
+
         mel_outputs, gate_outputs, alignments = self.decoder.inference(
             encoder_outputs)
 
