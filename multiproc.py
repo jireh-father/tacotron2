@@ -2,6 +2,8 @@ import time
 import torch
 import sys
 import subprocess
+import os
+
 
 argslist = list(sys.argv)[1:]
 num_gpus = torch.cuda.device_count()
@@ -12,8 +14,10 @@ argslist.append("--group_name=group_{}".format(job_id))
 
 for i in range(num_gpus):
     argslist.append('--rank={}'.format(i))
+    if not os.path.isdir("logs"):
+        os.makedirs("logs")
     stdout = None if i == 0 else open("logs/{}_GPU_{}.log".format(job_id, i),
-                                      "w")
+                                      "w+")
     print(argslist)
     p = subprocess.Popen([str(sys.executable)]+argslist, stdout=stdout)
     workers.append(p)
