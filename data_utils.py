@@ -33,7 +33,7 @@ class TextMelLoader(torch.utils.data.Dataset):
     def get_mel_text_pair(self, audiopath_and_text):
         # separate filename and text
         audiopath, text = audiopath_and_text[0], audiopath_and_text[1]
-        speaker_embedding_path = os.path.join(self.speaker_embedding_dir, os.path.basename(audiopath_and_text[0]))
+        speaker_embedding_path = os.path.join(self.speaker_embedding_dir, os.path.splitext(os.path.basename(audiopath_and_text[0]))[0]) + ".npy"
         text = self.get_text(text)
         mel = self.get_mel(audiopath)
         speaker_embedding = self.get_speaker_embedding(speaker_embedding_path)
