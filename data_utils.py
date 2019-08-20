@@ -41,8 +41,8 @@ class TextMelLoader(torch.utils.data.Dataset):
 
     def get_speaker_embedding(self, filename):
         speaker_embedding_np = np.load(filename)
-        speaker_embedding_np = torch.autograd.Variable(torch.from_numpy(speaker_embedding_np).cuda(), requires_grad=False)
-        speaker_embedding_np = speaker_embedding_np.half() if self.is_fp16 else speaker_embedding_np
+        speaker_embedding_np = torch.autograd.Variable(torch.FloatTensor(speaker_embedding_np.astype(np.float32)), requires_grad=False)
+        # speaker_embedding_np = speaker_embedding_np.half() if self.is_fp16 else speaker_embedding_np
         return speaker_embedding_np
 
     def get_mel(self, filename):
