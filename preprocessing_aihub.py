@@ -24,10 +24,9 @@ for data_dir in data_dirs:
             out_file_path = os.path.join(wav_dir, os.path.splitext(os.path.basename(pcm_file))[0] + ".wav")
             write(out_file_path, 16000, data)
             script_file = os.path.splitext(pcm_file)[0] + ".txt"
-            f = open(script_file, encoding="euc-kr")
-            for script in f:
-                script = re.sub(r"[a-z]/[ ]?", "", script).strip()
-                break
+            f = open(script_file, encoding="cp949")
+            script = f.readline()
+            script = re.sub(r"[a-z]/[ ]?", "", script).strip()
             f.close()
             output_file.write(out_file_path + "|" + script + "\n")
 output_file.close()
