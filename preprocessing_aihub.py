@@ -27,6 +27,7 @@ for data_dir in data_dirs:
             f = open(script_file, encoding="cp949")
             script = f.readline()
             script = re.sub(r"[a-z]/[ ]?", "", script).strip()
+            script = re.sub(r"\([^()]*[0-9]+[.][0-9]+[^()]*\)/\(([^()]+)\)", r"\1", script)
             script = re.sub(r"\(([^()]+)\)/\([^()]+\)", r"\1", script)
             f.close()
             output_file.write(out_file_path + "|" + script + "\n")
