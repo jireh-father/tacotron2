@@ -9,7 +9,7 @@ import numpy as np
 
 
 output_path = "aihub_files_and_scripts.txt"
-output_file = open(output_path, "w+")
+output_file = open(output_path, "w+", encoding="utf-8")
 wav_dir = "/home/ilseo/dataset/KsponSpeech_wav"
 if not os.path.isdir(wav_dir):
     os.makedirs(wav_dir)
