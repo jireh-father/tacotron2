@@ -27,7 +27,7 @@ def create_hparams(hparams_string=None, verbose=False):
         load_mel_from_disk=False,
         training_files='filelists/ljs_audio_text_train_filelist.txt',
         validation_files='filelists/ljs_audio_text_val_filelist.txt',
-        text_cleaners=['korean_cleaners'],#''english_cleaners'],
+        text_cleaners=['korean_cleaners_no_expand'],#'korean_cleaners'],#''english_cleaners'],
         num_workers=4,
         speaker_embedding_dir="/home/ilseo/dataset/kss_speaker/embedding",
 
