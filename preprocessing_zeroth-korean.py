@@ -19,6 +19,6 @@ for audio_dir in audio_dirs:
     for line in lines:
         line_split = line.split(" ")
         file_name = line_split[0]
-        script = line_split[1:]
+        script = " ".join(line_split[1:])
         output_file.write(os.path.join(audio_dir, file_name + ".flac") + "|" + script + "\n")
 output_file.close()
