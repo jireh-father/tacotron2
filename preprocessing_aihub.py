@@ -25,7 +25,7 @@ for data_dir in data_dirs:
             write(out_file_path, 16000, data)
             script_file = os.path.splitext(pcm_file)[0] + ".txt"
             f = open(script_file, encoding="euc-kr")
-            script = f.read().splitlines()[0]
+            script = f.readline()
             script = re.sub(r"[a-z]/[ ]?", "", script).strip()
             f.close()
             output_file.write(out_file_path + "|" + script + "\n")
