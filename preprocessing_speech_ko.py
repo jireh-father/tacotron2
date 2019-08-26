@@ -15,8 +15,9 @@ for line in lines:
         continue
     line = line.strip()
     if line[0] == '<':
-        script_map[line[1]] = {}
-        cur_book_idx = line[1]
+        b_idx = line.split(".")[0][:1]
+        script_map[b_idx] = {}
+        cur_book_idx = b_idx
     else:
         line_split = line.split(".")
         text_idx = line_split[0]
