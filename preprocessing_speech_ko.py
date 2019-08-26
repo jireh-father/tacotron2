@@ -15,12 +15,16 @@ for line in lines:
         continue
     line = line.strip()
     if line[0] == '<':
-        b_idx = line.split(".")[0][:1]
+        b_idx = line.split(".")[0][1:]
+        if len(b_idx) == 1:
+            b_idx = "0" + b_idx
         script_map[b_idx] = {}
         cur_book_idx = b_idx
     else:
         line_split = line.split(".")
         text_idx = line_split[0]
+        if len(text_idx) == 1:
+            text_idx = "0" + text_idx
         text = ".".join(line_split[1:]).strip()
         script_map[cur_book_idx][text_idx] = text
 
