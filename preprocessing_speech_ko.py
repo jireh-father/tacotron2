@@ -23,8 +23,6 @@ for line in lines:
         text = ".".join(line_split[1:]).strip()
         script_map[cur_book_idx][text_idx] = text
 
-restring = re.sub(r"[a-z]/[ ]?", "", lines[0]).strip()
-
 output_path = "speech_ko_files_and_scripts.txt"
 output_file = open(output_path, "w+")
 audio_dirs = glob.glob(os.path.join(data_dir, "*"))
