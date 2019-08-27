@@ -29,7 +29,8 @@ def create_hparams(hparams_string=None, verbose=False):
         validation_files='filelists/ljs_audio_text_val_filelist.txt',
         text_cleaners=['korean_cleaners_no_expand'],#'korean_cleaners'],#''english_cleaners'],
         num_workers=4,
-        speaker_embedding_dir="/home/ilseo/dataset/kss_speaker/embedding",
+        speaker_embedding_dir="/home/ilseo/dataset/spk_embed_aihub_datatang_speechko_zeroth",
+        mel_dir="/home/ilseo/dataset/mels_aihub_datatang_speechko_zeroth",
 
         ################################
         # Audio Parameters             #0

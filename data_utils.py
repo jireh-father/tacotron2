@@ -23,6 +23,7 @@ class TextMelLoader(torch.utils.data.Dataset):
         self.sampling_rate = hparams.sampling_rate
         self.load_mel_from_disk = hparams.load_mel_from_disk
         self.speaker_embedding_dir = hparams.speaker_embedding_dir
+        self.mel_dir = hparams.mel_dir
         self.stft = layers.TacotronSTFT(
             hparams.filter_length, hparams.hop_length, hparams.win_length,
             hparams.n_mel_channels, hparams.sampling_rate, hparams.mel_fmin,
@@ -32,7 +33,8 @@ class TextMelLoader(torch.utils.data.Dataset):
 
     def get_mel_text_pair(self, audiopath_and_text):
         # separate filename and text
-        audiopath, text = audiopath_and_text[0], audiopath_and_text[1]
+        audiopath = os.path.join(self.mel_dir, os.path.basename(audiopath_and_text[0])) + ".npy"
+        text = audiopath_and_text[1]
         speaker_embedding_path = os.path.join(self.speaker_embedding_dir, os.path.splitext(os.path.basename(audiopath_and_text[0]))[0]) + ".npy"
         text = self.get_text(text)
         mel = self.get_mel(audiopath)
