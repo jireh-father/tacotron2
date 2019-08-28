@@ -506,8 +506,10 @@ class Tacotron2(nn.Module):
 
         encoder_outputs = self.encoder(embedded_inputs, text_lengths)
 
-        speaker_embeddings = speaker_embeddings.view(-1, 1, self.encoder_embedding_dim)
-        encoder_outputs = torch.cat((encoder_outputs, speaker_embeddings), 1)
+        speaker_embeddings = speaker_embeddings.view(-1, 1, self.encoder_embedding_dim).repeat(1,
+                                                                                               encoder_outputs.size()[
+                                                                                                   1], 1)
+        encoder_outputs = torch.cat((encoder_outputs, speaker_embeddings), 2)
 
         mel_outputs, gate_outputs, alignments = self.decoder(
             encoder_outputs, mels, memory_lengths=text_lengths)
@@ -523,8 +525,13 @@ class Tacotron2(nn.Module):
         embedded_inputs = self.embedding(inputs).transpose(1, 2)
         encoder_outputs = self.encoder.inference(embedded_inputs)
 
-        speaker_embeddings = speaker_embeddings.view(-1, 1, self.encoder_embedding_dim)
-        encoder_outputs = torch.cat((encoder_outputs, speaker_embeddings), 1)
+        # speaker_embeddings = speaker_embeddings.view(-1, 1, self.encoder_embedding_dim)
+        # encoder_outputs = torch.cat((encoder_outputs, speaker_embeddings), 1)
+
+        speaker_embeddings = speaker_embeddings.view(-1, 1, self.encoder_embedding_dim).repeat(1,
+                                                                                               encoder_outputs.size()[
+                                                                                                   1], 1)
+        encoder_outputs = torch.cat((encoder_outputs, speaker_embeddings), 2)
 
         mel_outputs, gate_outputs, alignments = self.decoder.inference(
             encoder_outputs)
