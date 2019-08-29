@@ -7,7 +7,7 @@ import layers
 from utils import load_wav_to_torch, load_filepaths_and_text
 from text import text_to_sequence
 import os
-
+import pickle
 
 class TextMelLoader(torch.utils.data.Dataset):
     """
@@ -30,15 +30,23 @@ class TextMelLoader(torch.utils.data.Dataset):
             hparams.mel_fmax)
         random.seed(1234)
         random.shuffle(self.audiopaths_and_text)
+        self.use_model_speaker_embedding = hparams.use_model_speaker_embedding
+        if not hparams.use_model_speaker_embedding:
+            self.spk_id_map = pickle.load(open(self.speaker_embedding_dir, "rb"))
+            self.nums_of_speakers = hparams.nums_of_speakers
 
     def get_mel_text_pair(self, audiopath_and_text):
         # separate filename and text
         audiopath = os.path.join(self.mel_dir, os.path.basename(audiopath_and_text[0])) + ".npy"
         text = audiopath_and_text[1]
-        speaker_embedding_path = os.path.join(self.speaker_embedding_dir, os.path.splitext(os.path.basename(audiopath_and_text[0]))[0]) + ".npy"
         text = self.get_text(text)
         mel = self.get_mel(audiopath)
-        speaker_embedding = self.get_speaker_embedding(speaker_embedding_path)
+        if self.use_model_speaker_embedding:
+            speaker_embedding_path = os.path.join(self.speaker_embedding_dir, os.path.splitext(os.path.basename(audiopath_and_text[0]))[0]) + ".npy"
+            speaker_embedding = self.get_speaker_embedding(speaker_embedding_path)
+        else:
+            spk_file_name = os.path.basename(audiopath_and_text[0]).split(".")[0]
+            speaker_embedding = self.spk_id_map[spk_file_name]
         return (text, mel, speaker_embedding)
 
     def get_speaker_embedding(self, filename):

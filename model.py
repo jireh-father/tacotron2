@@ -136,7 +136,7 @@ class Postnet(nn.Module):
                          padding=int((hparams.postnet_kernel_size - 1) / 2),
                          dilation=1, w_init_gain='linear'),
                 nn.BatchNorm1d(hparams.n_mel_channels))
-            )
+        )
 
     def forward(self, x):
         for i in range(len(self.convolutions) - 1):
@@ -151,6 +151,7 @@ class Encoder(nn.Module):
         - Three 1-d convolution banks
         - Bidirectional LSTM
     """
+
     def __init__(self, hparams):
         super(Encoder, self).__init__()
         convolutions = []
@@ -302,7 +303,7 @@ class Decoder(nn.Module):
         decoder_inputs = decoder_inputs.transpose(1, 2)
         decoder_inputs = decoder_inputs.view(
             decoder_inputs.size(0),
-            int(decoder_inputs.size(1)/self.n_frames_per_step), -1)
+            int(decoder_inputs.size(1) / self.n_frames_per_step), -1)
         # (B, T_out, n_mel_channels) -> (T_out, B, n_mel_channels)
         decoder_inputs = decoder_inputs.transpose(0, 1)
         return decoder_inputs
@@ -469,10 +470,14 @@ class Tacotron2(nn.Module):
         self.encoder = Encoder(hparams)
         self.decoder = Decoder(hparams)
         self.postnet = Postnet(hparams)
+        self.use_model_speaker_embedding = hparams.use_model_speaker_embedding
+        self.speaker_embedding_dim = hparams.speaker_embedding_dim
+        # todo!!
+        self.speaker_embedding_layer = torch.nn.Embedding(hparams.nums_of_speakers, hparams.speaker_embedding_dim)
 
     def parse_batch(self, batch):
         text_padded, input_lengths, mel_padded, gate_padded, \
-            output_lengths, speaker_embedding = batch
+        output_lengths, speaker_embedding = batch
         text_padded = to_gpu(text_padded).long()
         input_lengths = to_gpu(input_lengths).long()
         max_len = torch.max(input_lengths.data).item()
@@ -498,7 +503,7 @@ class Tacotron2(nn.Module):
         return outputs
 
     def forward(self, inputs):
-        #speaker_embeddings (batch_size,512)
+        # speaker_embeddings (batch_size,512)
         text_inputs, text_lengths, mels, max_len, output_lengths, speaker_embeddings = inputs
         text_lengths, output_lengths = text_lengths.data, output_lengths.data
 
@@ -506,9 +511,11 @@ class Tacotron2(nn.Module):
 
         encoder_outputs = self.encoder(embedded_inputs, text_lengths)
 
-        speaker_embeddings = speaker_embeddings.view(-1, 1, self.encoder_embedding_dim).repeat(1,
-                                                                                               encoder_outputs.size()[
-                                                                                                   1], 1)
+        if self.use_model_speaker_embedding:
+            speaker_embeddings = speaker_embeddings.unsqueeze(1).repeat(1, encoder_outputs.size()[1], 1)
+        else:
+            speaker_embeddings = self.speaker_embedding_layer(speaker_embeddings)
+            speaker_embeddings = speaker_embeddings.repeat(1, encoder_outputs.size()[1], 1)
         encoder_outputs = torch.cat((encoder_outputs, speaker_embeddings), 2)
 
         mel_outputs, gate_outputs, alignments = self.decoder(
@@ -528,10 +535,13 @@ class Tacotron2(nn.Module):
         # speaker_embeddings = speaker_embeddings.view(-1, 1, self.encoder_embedding_dim)
         # encoder_outputs = torch.cat((encoder_outputs, speaker_embeddings), 1)
 
-        speaker_embeddings = speaker_embeddings.view(-1, 1, self.encoder_embedding_dim).repeat(1,
-                                                                                               encoder_outputs.size()[
-                                                                                                   1], 1)
-        encoder_outputs = torch.cat((encoder_outputs, speaker_embeddings), 2)
+        if self.use_model_speaker_embedding:
+            speaker_embeddings = speaker_embeddings.view(-1, 1, self.encoder_embedding_dim).repeat(1,
+                                                                                                   encoder_outputs.size()[
+                                                                                                       1], 1)
+            encoder_outputs = torch.cat((encoder_outputs, speaker_embeddings), 2)
+        else:
+            pass
 
         mel_outputs, gate_outputs, alignments = self.decoder.inference(
             encoder_outputs)

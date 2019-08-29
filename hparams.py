@@ -31,6 +31,9 @@ def create_hparams(hparams_string=None, verbose=False):
         num_workers=4,
         speaker_embedding_dir="/home/ilseo/dataset/spk_embed_aihub_datatang_speechko_zeroth",
         mel_dir="/home/ilseo/dataset/mels_aihub_datatang_speechko_zeroth",
+        use_model_speaker_embedding=True,
+        nums_of_speakers=136,
+        speaker_embedding_dim=512,
 
         ################################
         # Audio Parameters             #0
