@@ -208,6 +208,7 @@ class Decoder(nn.Module):
         self.n_frames_per_step = hparams.n_frames_per_step
         self.encoder_embedding_dim = hparams.encoder_embedding_dim
         self.speaker_embedding_dim = hparams.speaker_embedding_dim
+        self.use_decoder_input_embedding_reduction = hparams.use_decoder_input_embedding_reduction
         self.attention_rnn_dim = hparams.attention_rnn_dim
         self.decoder_rnn_dim = hparams.decoder_rnn_dim
         self.prenet_dim = hparams.prenet_dim
@@ -220,25 +221,30 @@ class Decoder(nn.Module):
             hparams.n_mel_channels * hparams.n_frames_per_step,
             [hparams.prenet_dim, hparams.prenet_dim])
 
+        if self.use_decoder_input_embedding_reduction:
+            encoder_embedding_dim = hparams.encoder_embedding_dim
+        else:
+            encoder_embedding_dim = hparams.encoder_embedding_dim + hparams.speaker_embedding_dim
+
         self.attention_rnn = nn.LSTMCell(
-            hparams.prenet_dim + hparams.encoder_embedding_dim + hparams.speaker_embedding_dim,
+            hparams.prenet_dim + encoder_embedding_dim,
             hparams.attention_rnn_dim)
 
         self.attention_layer = Attention(
-            hparams.attention_rnn_dim, hparams.encoder_embedding_dim + hparams.speaker_embedding_dim,
+            hparams.attention_rnn_dim, encoder_embedding_dim,
             hparams.attention_dim, hparams.attention_location_n_filters,
             hparams.attention_location_kernel_size)
 
         self.decoder_rnn = nn.LSTMCell(
-            hparams.attention_rnn_dim + hparams.encoder_embedding_dim + hparams.speaker_embedding_dim,
+            hparams.attention_rnn_dim + encoder_embedding_dim,
             hparams.decoder_rnn_dim, 1)
 
         self.linear_projection = LinearNorm(
-            hparams.decoder_rnn_dim + hparams.encoder_embedding_dim + hparams.speaker_embedding_dim,
+            hparams.decoder_rnn_dim + encoder_embedding_dim,
             hparams.n_mel_channels * hparams.n_frames_per_step)
 
         self.gate_layer = LinearNorm(
-            hparams.decoder_rnn_dim + hparams.encoder_embedding_dim + hparams.speaker_embedding_dim, 1,
+            hparams.decoder_rnn_dim + encoder_embedding_dim, 1,
             bias=True, w_init_gain='sigmoid')
 
     def get_go_frame(self, memory):
@@ -282,8 +288,12 @@ class Decoder(nn.Module):
             B, MAX_TIME).zero_())
         self.attention_weights_cum = Variable(memory.data.new(
             B, MAX_TIME).zero_())
-        self.attention_context = Variable(memory.data.new(
-            B, self.encoder_embedding_dim + self.speaker_embedding_dim).zero_())
+
+        if self.use_decoder_input_embedding_reduction:
+            encoder_embedding_dim = self.encoder_embedding_dim
+        else:
+            encoder_embedding_dim = self.encoder_embedding_dim + self.speaker_embedding_dim
+        self.attention_context = Variable(memory.data.new(B, encoder_embedding_dim).zero_())
 
         self.memory = memory
         self.processed_memory = self.attention_layer.memory_layer(memory)
@@ -473,8 +483,13 @@ class Tacotron2(nn.Module):
         self.postnet = Postnet(hparams)
         self.use_model_speaker_embedding = hparams.use_model_speaker_embedding
         self.speaker_embedding_dim = hparams.speaker_embedding_dim
-        # todo!!
-        self.speaker_embedding_layer = torch.nn.Embedding(hparams.nums_of_speakers, hparams.speaker_embedding_dim)
+        self.use_decoder_input_embedding_reduction = hparams.use_decoder_input_embedding_reduction
+
+        if not hparams.use_model_speaker_embedding:
+            self.speaker_embedding_layer = torch.nn.Embedding(hparams.nums_of_speakers, hparams.speaker_embedding_dim)
+        if not hparams.use_decoder_input_embedding_reduction:
+            self.decoder_input_linear = torch.nn.Linear(hparams.encoder_embedding_dim + hparams.speaker_embedding_dim,
+                                                        hparams.encoder_embedding_dim, bias=True)
 
     def parse_batch(self, batch):
         text_padded, input_lengths, mel_padded, gate_padded, \
@@ -519,6 +534,8 @@ class Tacotron2(nn.Module):
             speaker_embeddings = self.speaker_embedding_layer(speaker_embeddings).unsqueeze(1)
             speaker_embeddings = speaker_embeddings.repeat(1, encoder_outputs.size()[1], 1)
         encoder_outputs = torch.cat((encoder_outputs, speaker_embeddings), 2)
+        if not self.use_decoder_input_embedding_reduction:
+            encoder_outputs = self.decoder_input_linear(encoder_outputs)
 
         mel_outputs, gate_outputs, alignments = self.decoder(
             encoder_outputs, mels, memory_lengths=text_lengths)
@@ -543,6 +560,8 @@ class Tacotron2(nn.Module):
             speaker_embeddings = self.speaker_embedding_layer(speaker_embeddings)
             speaker_embeddings = speaker_embeddings.repeat(1, encoder_outputs.size()[1], 1)
         encoder_outputs = torch.cat((encoder_outputs, speaker_embeddings), 2)
+        if not self.use_decoder_input_embedding_reduction:
+            encoder_outputs = self.decoder_input_linear(encoder_outputs)
 
         mel_outputs, gate_outputs, alignments = self.decoder.inference(
             encoder_outputs)

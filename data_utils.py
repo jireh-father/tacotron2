@@ -8,6 +8,7 @@ from utils import load_wav_to_torch, load_filepaths_and_text
 from text import text_to_sequence
 import os
 import pickle
+import random
 
 class TextMelLoader(torch.utils.data.Dataset):
     """
@@ -46,6 +47,8 @@ class TextMelLoader(torch.utils.data.Dataset):
             speaker_embedding = self.get_speaker_embedding(speaker_embedding_path)
         else:
             spk_file_name = os.path.basename(audiopath_and_text[0]).split(".")[0]
+            if spk_file_name not in self.spk_id_map:
+                spk_file_name = random.choice(list(self.spk_id_map.keys()))
             speaker_embedding = self.spk_id_map[spk_file_name]
         return (text, mel, speaker_embedding)
 
