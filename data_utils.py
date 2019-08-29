@@ -42,7 +42,7 @@ class TextMelLoader(torch.utils.data.Dataset):
         text = self.get_text(text)
         mel = self.get_mel(audiopath)
         if self.use_model_speaker_embedding:
-            speaker_embedding_path = os.path.join(self.speaker_embedding_dir, os.path.splitext(os.path.basename(audiopath_and_text[0]))[0]) + ".npy"
+            speaker_embedding_path = os.path.join(self.speaker_embedding_dir, os.path.basename(audiopath_and_text[0])) + ".npy"
             speaker_embedding = self.get_speaker_embedding(speaker_embedding_path)
         else:
             spk_file_name = os.path.basename(audiopath_and_text[0]).split(".")[0]
