@@ -129,7 +129,7 @@ class TextMelCollate():
         mel_padded.zero_()
         gate_padded = torch.FloatTensor(len(batch), max_target_len)
         gate_padded.zero_()
-        speaker_embeddings = torch.FloatTensor(len(batch), batch[0][2].size(0))
+        speaker_embeddings = torch.FloatTensor(len(batch), 0)
         output_lengths = torch.LongTensor(len(batch))
         for i in range(len(ids_sorted_decreasing)):
             mel = batch[ids_sorted_decreasing[i]][1]
