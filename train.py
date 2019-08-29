@@ -237,7 +237,7 @@ def train(output_directory, log_directory, checkpoint_path, warm_start, n_gpus,
 
             optimizer.step()
 
-            if not is_overflow and rank == 0:
+            if not is_overflow and rank == 0 and i > 0 and i % 10 == 0:
                 duration = time.perf_counter() - start
                 print("[{}] Train loss {} {:.6f} Grad Norm {:.6f} {:.2f}s/it".format(
                     datetime.datetime.now().strftime("%Y-%m-%d_%H:%M:%S"), iteration, reduced_loss, grad_norm, duration))
