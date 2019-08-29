@@ -515,6 +515,7 @@ class Tacotron2(nn.Module):
         if self.use_model_speaker_embedding:
             speaker_embeddings = speaker_embeddings.unsqueeze(1).repeat(1, encoder_outputs.size()[1], 1)
         else:
+            speaker_embeddings = speaker_embeddings.type(torch.long)
             speaker_embeddings = self.speaker_embedding_layer(speaker_embeddings)
             speaker_embeddings = speaker_embeddings.repeat(1, encoder_outputs.size()[1], 1)
         encoder_outputs = torch.cat((encoder_outputs, speaker_embeddings), 2)
