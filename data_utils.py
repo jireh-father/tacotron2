@@ -96,8 +96,9 @@ class TextMelCollate():
     """ Zero-pads model inputs and targets based on number of frames per setep
     """
 
-    def __init__(self, n_frames_per_step):
+    def __init__(self, n_frames_per_step, use_model_speaker_embedding):
         self.n_frames_per_step = n_frames_per_step
+        self.use_model_speaker_embedding = use_model_speaker_embedding
 
     def __call__(self, batch):
         """Collate's training batch from normalized text and mel-spectrogram
@@ -129,7 +130,10 @@ class TextMelCollate():
         mel_padded.zero_()
         gate_padded = torch.FloatTensor(len(batch), max_target_len)
         gate_padded.zero_()
-        speaker_embeddings = torch.FloatTensor(len(batch), 0)
+        if self.use_model_speaker_embedding:
+            speaker_embeddings = torch.FloatTensor(len(batch), batch[0][2].size(0))
+        else:
+            speaker_embeddings = torch.FloatTensor(len(batch), 0)
         output_lengths = torch.LongTensor(len(batch))
         for i in range(len(ids_sorted_decreasing)):
             mel = batch[ids_sorted_decreasing[i]][1]

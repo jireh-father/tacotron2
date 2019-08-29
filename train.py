@@ -44,7 +44,7 @@ def prepare_dataloaders(hparams):
     # Get data, data loaders and collate function ready
     trainset = TextMelLoader(hparams.training_files, hparams)
     valset = TextMelLoader(hparams.validation_files, hparams)
-    collate_fn = TextMelCollate(hparams.n_frames_per_step)
+    collate_fn = TextMelCollate(hparams.n_frames_per_step, hparams.use_model_speaker_embedding)
 
     if hparams.distributed_run:
         train_sampler = DistributedSampler(trainset)
