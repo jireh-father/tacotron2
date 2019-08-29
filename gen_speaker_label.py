@@ -3,7 +3,7 @@ import glob
 import pickle
 
 encoder_dataset_dir = "/home/ilseo/dataset/encoder_preprocessing/"
-target_dataset_prefixs = ["datatang", "zeroth", "speech"]
+target_dataset_prefixs = ["datatang", "zeroth-korean", "speech"]
 output_path = "/home/ilseo/dataset/speaker_id_map_datatang_zeroth_speechko.pkl"
 
 target_spk_dirs = []
