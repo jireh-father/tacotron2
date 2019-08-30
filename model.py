@@ -487,7 +487,7 @@ class Tacotron2(nn.Module):
 
         if not hparams.use_model_speaker_embedding:
             self.speaker_embedding_layer = torch.nn.Embedding(hparams.nums_of_speakers, hparams.speaker_embedding_dim)
-        if not hparams.use_decoder_input_embedding_reduction:
+        if hparams.use_decoder_input_embedding_reduction:
             self.decoder_input_linear = torch.nn.Linear(hparams.encoder_embedding_dim + hparams.speaker_embedding_dim,
                                                         hparams.encoder_embedding_dim, bias=True)
 
@@ -534,7 +534,7 @@ class Tacotron2(nn.Module):
             speaker_embeddings = self.speaker_embedding_layer(speaker_embeddings).unsqueeze(1)
             speaker_embeddings = speaker_embeddings.repeat(1, encoder_outputs.size()[1], 1)
         encoder_outputs = torch.cat((encoder_outputs, speaker_embeddings), 2)
-        if not self.use_decoder_input_embedding_reduction:
+        if self.use_decoder_input_embedding_reduction:
             encoder_outputs = self.decoder_input_linear(encoder_outputs)
 
         mel_outputs, gate_outputs, alignments = self.decoder(
@@ -560,7 +560,7 @@ class Tacotron2(nn.Module):
             speaker_embeddings = self.speaker_embedding_layer(speaker_embeddings)
             speaker_embeddings = speaker_embeddings.repeat(1, encoder_outputs.size()[1], 1)
         encoder_outputs = torch.cat((encoder_outputs, speaker_embeddings), 2)
-        if not self.use_decoder_input_embedding_reduction:
+        if self.use_decoder_input_embedding_reduction:
             encoder_outputs = self.decoder_input_linear(encoder_outputs)
 
         mel_outputs, gate_outputs, alignments = self.decoder.inference(
