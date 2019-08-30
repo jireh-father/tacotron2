@@ -16,6 +16,7 @@ from data_utils import TextMelLoader, TextMelCollate
 from loss_function import Tacotron2Loss
 from logger import Tacotron2Logger
 from hparams import create_hparams
+from torch.optim.lr_scheduler import ReduceLROnPlateau, StepLR
 
 
 def reduce_tensor(tensor, n_gpus):
@@ -140,12 +141,12 @@ def validate(model, criterion, valset, iteration, batch_size, n_gpus,
             else:
                 reduced_val_loss = loss.item()
             val_loss += reduced_val_loss
-        val_loss = val_loss / (i + 1)
+        val_loss = val_loss / len(val_loader)
 
     model.train()
     if rank == 0:
         print("Validation loss {}: {:9f}  ".format(iteration, reduced_val_loss))
-        logger.log_validation(reduced_val_loss, model, y, y_pred, iteration)
+        logger.log_validation(val_loss, model, y, y_pred, iteration)
 
 
 def train(output_directory, log_directory, checkpoint_path, warm_start, n_gpus,
@@ -171,7 +172,7 @@ def train(output_directory, log_directory, checkpoint_path, warm_start, n_gpus,
     learning_rate = hparams.learning_rate
     optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate,
                                  weight_decay=hparams.weight_decay)
-
+    scheduler = StepLR(optimizer, step_size=1, gamma=0.96)
     if hparams.fp16_run:
         from apex import amp
         model, optimizer = amp.initialize(
@@ -205,12 +206,15 @@ def train(output_directory, log_directory, checkpoint_path, warm_start, n_gpus,
     model.train()
     is_overflow = False
     # ================ MAIN TRAINNIG LOOP! ===================
+    start_time = datetime.datetime.now()
     for epoch in range(epoch_offset, hparams.epochs):
+        print('Epoch:', epoch, 'LR:', scheduler.get_lr())
         print("Epoch: [{}] {}".format(datetime.datetime.now().strftime("%Y-%m-%d_%H:%M:%S"), epoch))
+        total_loss = 0.
         for i, batch in enumerate(train_loader):
             start = time.perf_counter()
             for param_group in optimizer.param_groups:
-                param_group['lr'] = learning_rate
+                param_group['lr'] = scheduler.get_lr()
 
             model.zero_grad()
             x, y = model.parse_batch(batch)
@@ -221,6 +225,7 @@ def train(output_directory, log_directory, checkpoint_path, warm_start, n_gpus,
                 reduced_loss = reduce_tensor(loss.data, n_gpus).item()
             else:
                 reduced_loss = loss.item()
+            total_loss += reduced_loss
             if hparams.fp16_run:
                 with amp.scale_loss(loss, optimizer) as scaled_loss:
                     scaled_loss.backward()
@@ -239,22 +244,29 @@ def train(output_directory, log_directory, checkpoint_path, warm_start, n_gpus,
 
             if not is_overflow and rank == 0 and i > 0 and i % 10 == 0:
                 duration = time.perf_counter() - start
-                print("[{}] Train loss {} {:.6f} Grad Norm {:.6f} {:.2f}s/it".format(
-                    datetime.datetime.now().strftime("%Y-%m-%d_%H:%M:%S"), iteration, reduced_loss, grad_norm, duration))
+                elapsed = datetime.datetime.now() - start_time
+                print("[{}][{}] Train loss {} {:.6f} Grad Norm {:.6f} {:.2f}s/it".format(
+                    datetime.datetime.now().strftime("%Y-%m-%d_%H:%M:%S"), elapsed, iteration, reduced_loss, grad_norm, duration))
                 logger.log_training(
-                    reduced_loss, grad_norm, learning_rate, duration, iteration)
+                    reduced_loss, grad_norm, scheduler.get_lr(), duration, iteration)
 
             if not is_overflow and (iteration % hparams.iters_per_checkpoint == 0):
+                elapsed = datetime.datetime.now() - start_time
+                print("[{}][{}] Train avg loss {} {:.6f}".format(
+                    datetime.datetime.now().strftime("%Y-%m-%d_%H:%M:%S"), elapsed, iteration,
+                    total_loss / len(hparams.iters_per_checkpoint)))
+                total_loss = 0.0
                 validate(model, criterion, valset, iteration,
                          hparams.batch_size, n_gpus, collate_fn, logger,
                          hparams.distributed_run, rank, hparams.num_workers)
                 if rank == 0:
                     checkpoint_path = os.path.join(
                         output_directory, "checkpoint_{}".format(iteration))
-                    save_checkpoint(model, optimizer, learning_rate, iteration,
+                    save_checkpoint(model, optimizer, scheduler.get_lr(), iteration,
                                     checkpoint_path)
 
             iteration += 1
+        scheduler.step(epoch)
 
 
 if __name__ == '__main__':
@@ -278,6 +290,22 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
     hparams = create_hparams(args.hparams)
+    log_dir = os.path.join(args.output_directory, args.log_directory)
+    if not os.path.isdir(log_dir):
+        os.makedirs(log_dir)
+    cur_time = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
+    f = open(os.path.join(log_dir, "args_%s.txt" % cur_time), "w+")
+    print("====args====")
+    for arg in vars(args):
+        print(arg + " : " + str(getattr(args, arg)))
+        f.write(arg + " : " + str(getattr(args, arg)) + "\n")
+    f.close()
+    f = open(os.path.join(log_dir, "hparams_%s.txt" % cur_time), "w+")
+    print("====hparams====")
+    for arg in vars(hparams):
+        print(arg + " : " + str(getattr(hparams, arg)))
+        f.write(arg + " : " + str(getattr(hparams, arg)) + "\n")
+    f.close()
 
     torch.backends.cudnn.enabled = hparams.cudnn_enabled
     torch.backends.cudnn.benchmark = hparams.cudnn_benchmark
