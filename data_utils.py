@@ -10,6 +10,7 @@ import os
 import pickle
 import random
 
+
 class TextMelLoader(torch.utils.data.Dataset):
     """
         1) loads audio,text pairs
@@ -43,18 +44,18 @@ class TextMelLoader(torch.utils.data.Dataset):
         text = self.get_text(text)
         mel = self.get_mel(audiopath)
         if self.use_model_speaker_embedding:
-            speaker_embedding_path = os.path.join(self.speaker_embedding_dir, os.path.basename(audiopath_and_text[0])) + ".npy"
+            speaker_embedding_path = os.path.join(self.speaker_embedding_dir,
+                                                  os.path.basename(audiopath_and_text[0])) + ".npy"
             speaker_embedding = self.get_speaker_embedding(speaker_embedding_path)
         else:
             spk_file_name = os.path.basename(audiopath_and_text[0]).split(".")[0]
-            if spk_file_name not in self.spk_id_map:
-                spk_file_name = random.choice(list(self.spk_id_map.keys()))
             speaker_embedding = self.spk_id_map[spk_file_name]
         return (text, mel, speaker_embedding)
 
     def get_speaker_embedding(self, filename):
         speaker_embedding_np = np.load(filename)
-        speaker_embedding_np = torch.autograd.Variable(torch.FloatTensor(speaker_embedding_np.astype(np.float32)), requires_grad=False)
+        speaker_embedding_np = torch.autograd.Variable(torch.FloatTensor(speaker_embedding_np.astype(np.float32)),
+                                                       requires_grad=False)
         # speaker_embedding_np = speaker_embedding_np.half() if self.is_fp16 else speaker_embedding_np
         return speaker_embedding_np
 
@@ -86,10 +87,15 @@ class TextMelLoader(torch.utils.data.Dataset):
 
     def get_text(self, text):
         text_norm = torch.IntTensor(text_to_sequence(text, self.text_cleaners))
+
         return text_norm
 
     def __getitem__(self, index):
-        return self.get_mel_text_pair(self.audiopaths_and_text[index])
+        while True:
+            try:
+                return self.get_mel_text_pair(self.audiopaths_and_text[index])
+            except:
+                index = random.randint(0, len(self.audiopaths_and_text) - 1)
 
     def __len__(self):
         return len(self.audiopaths_and_text)
