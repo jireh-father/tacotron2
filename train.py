@@ -214,7 +214,7 @@ def train(output_directory, log_directory, checkpoint_path, warm_start, n_gpus,
         for i, batch in enumerate(train_loader):
             start = time.perf_counter()
             for param_group in optimizer.param_groups:
-                param_group['lr'] = scheduler.get_lr()
+                param_group['lr'] = scheduler.get_lr()[0]
 
             model.zero_grad()
             x, y = model.parse_batch(batch)
@@ -248,7 +248,7 @@ def train(output_directory, log_directory, checkpoint_path, warm_start, n_gpus,
                 print("[{}][{}] Train loss {} {:.6f} Grad Norm {:.6f} {:.2f}s/it".format(
                     datetime.datetime.now().strftime("%Y-%m-%d_%H:%M:%S"), elapsed, iteration, reduced_loss, grad_norm, duration))
                 logger.log_training(
-                    reduced_loss, grad_norm, scheduler.get_lr(), duration, iteration)
+                    reduced_loss, grad_norm, scheduler.get_lr()[0], duration, iteration)
 
             if not is_overflow and (iteration % hparams.iters_per_checkpoint == 0):
                 elapsed = datetime.datetime.now() - start_time
@@ -262,7 +262,7 @@ def train(output_directory, log_directory, checkpoint_path, warm_start, n_gpus,
                 if rank == 0:
                     checkpoint_path = os.path.join(
                         output_directory, "checkpoint_{}".format(iteration))
-                    save_checkpoint(model, optimizer, scheduler.get_lr(), iteration,
+                    save_checkpoint(model, optimizer, scheduler.get_lr()[0], iteration,
                                     checkpoint_path)
 
             iteration += 1
