@@ -254,7 +254,7 @@ def train(output_directory, log_directory, checkpoint_path, warm_start, n_gpus,
                 elapsed = datetime.datetime.now() - start_time
                 print("[{}][{}] Train avg loss {} {:.6f}".format(
                     datetime.datetime.now().strftime("%Y-%m-%d_%H:%M:%S"), elapsed, iteration,
-                    total_loss / len(hparams.iters_per_checkpoint)))
+                    total_loss / hparams.iters_per_checkpoint))
                 total_loss = 0.0
                 validate(model, criterion, valset, iteration,
                          hparams.batch_size, n_gpus, collate_fn, logger,
