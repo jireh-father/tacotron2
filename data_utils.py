@@ -42,13 +42,22 @@ class TextMelLoader(torch.utils.data.Dataset):
         audiopath = os.path.join(self.mel_dir, os.path.basename(audiopath_and_text[0])) + ".pt"
         text = audiopath_and_text[1]
         text = self.get_text(text)
+        if not os.path.isfile(audiopath):
+            print("nothing mel", audiopath)
+            raise Exception("nothing mel", audiopath)
         mel = self.get_mel(audiopath)
         if self.use_model_speaker_embedding:
             speaker_embedding_path = os.path.join(self.speaker_embedding_dir,
                                                   os.path.basename(audiopath_and_text[0])) + ".npy"
+            if not os.path.isfile(speaker_embedding_path):
+                print("nothing spk embed", speaker_embedding_path)
+                raise Exception("nothing spk embed", speaker_embedding_path)
             speaker_embedding = self.get_speaker_embedding(speaker_embedding_path)
         else:
             spk_file_name = os.path.basename(audiopath_and_text[0]).split(".")[0]
+            if spk_file_name not in self.spk_id_map:
+                print("nothing spk embed id", spk_file_name)
+                raise Exception("nothing spk embed id", spk_file_name)
             speaker_embedding = self.spk_id_map[spk_file_name]
         return (text, mel, speaker_embedding)
 
@@ -86,6 +95,10 @@ class TextMelLoader(torch.utils.data.Dataset):
         return melspec
 
     def get_text(self, text):
+        seq = text_to_sequence(text, self.text_cleaners)
+        if len(seq) < 1:
+            print("zero length!", text)
+            raise Exception("zero length seq")
         text_norm = torch.IntTensor(text_to_sequence(text, self.text_cleaners))
 
         return text_norm
