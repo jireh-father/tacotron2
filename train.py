@@ -251,6 +251,11 @@ def train(output_directory, log_directory, checkpoint_path, warm_start, n_gpus,
                     reduced_loss, grad_norm, scheduler.get_lr()[0], duration, iteration)
 
             if not is_overflow and (iteration % hparams.iters_per_checkpoint == 0):
+                if rank == 0:
+                    checkpoint_path = os.path.join(
+                        output_directory, "checkpoint_{}".format(iteration))
+                    save_checkpoint(model, optimizer, scheduler.get_lr()[0], iteration,
+                                    checkpoint_path)
                 elapsed = datetime.datetime.now() - start_time
                 print("[{}][{}] Train avg loss {} {:.6f}".format(
                     datetime.datetime.now().strftime("%Y-%m-%d_%H:%M:%S"), elapsed, iteration,
@@ -259,11 +264,6 @@ def train(output_directory, log_directory, checkpoint_path, warm_start, n_gpus,
                 validate(model, criterion, valset, iteration,
                          hparams.batch_size, n_gpus, collate_fn, logger,
                          hparams.distributed_run, rank, hparams.num_workers)
-                if rank == 0:
-                    checkpoint_path = os.path.join(
-                        output_directory, "checkpoint_{}".format(iteration))
-                    save_checkpoint(model, optimizer, scheduler.get_lr()[0], iteration,
-                                    checkpoint_path)
 
             iteration += 1
         scheduler.step(epoch)
