@@ -19,6 +19,7 @@ SYNTH_DIR = 'static/synth_wav'
 tacotron2_model = None
 waveglow_model = None
 denoiser = None
+mel_path = ""
 
 def init_model():
     print("init model!!!!")
@@ -97,16 +98,19 @@ def simple_synth():
     sequence = np.array(text_to_sequence(text, ['korean_cleaners_no_expand']))[None, :]
     #    sequence = np.array(text_to_sequence(text, ['english_cleaners']))[None, :]
     #    sequence = np.array(text_to_sequence(text, ['korean_cleaners']))[None, :]
-    sequence = torch.autograd.Variable(
-        torch.from_numpy(sequence)).cuda().long()
-    nums_speakers = 251
-    speaker_id = random.randint(0, nums_speakers - 1)
-    speaker_id = torch.autograd.Variable(
-        torch.from_numpy(np.array([speaker_id]))).cuda().long()
-    mel_outputs, mel_outputs_postnet, _, alignments = tacotron2_model.inference(sequence, speaker_id)
-    MAX_WAV_VALUE = 32768.0
-
     with torch.no_grad():
+        sequence = torch.autograd.Variable(
+            torch.from_numpy(sequence)).cuda().long()
+        nums_speakers = 251
+        speaker_id = random.randint(0, nums_speakers - 1)
+        speaker_id = torch.autograd.Variable(
+            torch.from_numpy(np.array([speaker_id]))).cuda().long()
+
+        mel_outputs, mel_outputs_postnet, _, alignments = tacotron2_model.inference(sequence, speaker_id)
+        MAX_WAV_VALUE = 32768.0
+
+        mel_outputs_postnet = torch.load(mel_path).cuda()
+
         audio = waveglow_model.infer(mel_outputs_postnet, sigma=sigma)  # 0.666)
         if denoiser_strength > 0:
             audio = denoiser(audio, denoiser_strength)  # 0.01 > denoiser_strength
