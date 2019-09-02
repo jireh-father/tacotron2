@@ -19,7 +19,7 @@ SYNTH_DIR = 'static/synth_wav'
 tacotron2_model = None
 waveglow_model = None
 denoiser = None
-speaker_embedding_path = ""
+speaker_embedding_path = "/home/ilseo/dataset/spk_emd_e512_aihub_datatang_speechko_zeroth/112_003_2104.flac.npy"
 
 def init_model():
     print("init model!!!!")
