@@ -105,7 +105,7 @@ def simple_synth():
         speaker_embedding_np = np.load(speaker_embedding_path)
         # speaker_embedding_np = torch.autograd.Variable(torch.FloatTensor(speaker_embedding_np.astype(np.float32)),
         #                                                requires_grad=False)
-        speaker_embedding = torch.FloatTensor(speaker_embedding_np.astype(np.float32)).cuda()
+        speaker_embedding = torch.FloatTensor(speaker_embedding_np.astype(np.float32)).cuda().unsqueeze(0)
 
         mel_outputs, mel_outputs_postnet, _, alignments = tacotron2_model.inference(sequence, speaker_embedding)
         MAX_WAV_VALUE = 32768.0
