@@ -112,7 +112,7 @@ def simple_synth():
 
         # mel_outputs_postnet = torch.load(mel_path).unsqueeze(0).cuda().half()
 
-        audio = waveglow_model.infer(mel_outputs_postnet, sigma=sigma)  # 0.666)
+        audio = waveglow_model.infer(mel_outputs_postnet.half(), sigma=sigma)  # 0.666)
         if denoiser_strength > 0:
             audio = denoiser(audio, denoiser_strength)  # 0.01 > denoiser_strength
         audio = audio * MAX_WAV_VALUE
