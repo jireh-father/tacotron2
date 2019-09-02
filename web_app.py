@@ -13,6 +13,7 @@ from text import text_to_sequence
 from scipy.io.wavfile import write
 import uuid
 import time
+import random
 
 SYNTH_DIR = 'static/synth_wav'
 tacotron2_model = None
@@ -93,13 +94,16 @@ def simple_synth():
 
 
     start = time.time()
-    sequence = np.array(text_to_sequence(text, ['transliteration_cleaners']))[None, :]
+    sequence = np.array(text_to_sequence(text, ['korean_cleaners_no_expand']))[None, :]
     #    sequence = np.array(text_to_sequence(text, ['english_cleaners']))[None, :]
     #    sequence = np.array(text_to_sequence(text, ['korean_cleaners']))[None, :]
     sequence = torch.autograd.Variable(
         torch.from_numpy(sequence)).cuda().long()
-
-    mel_outputs, mel_outputs_postnet, _, alignments = tacotron2_model.inference(sequence)
+    nums_speakers = 251
+    speaker_id = random.randint(0, nums_speakers - 1)
+    speaker_id = torch.autograd.Variable(
+        torch.from_numpy(np.array([speaker_id]))).cuda().long()
+    mel_outputs, mel_outputs_postnet, _, alignments = tacotron2_model.inference(sequence, speaker_id)
     MAX_WAV_VALUE = 32768.0
 
     with torch.no_grad():
