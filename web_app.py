@@ -109,7 +109,7 @@ def simple_synth():
         mel_outputs, mel_outputs_postnet, _, alignments = tacotron2_model.inference(sequence, speaker_id)
         MAX_WAV_VALUE = 32768.0
 
-        mel_outputs_postnet = torch.load(mel_path).cuda()
+        mel_outputs_postnet = torch.load(mel_path).unsqueeze(0).cuda()
 
         audio = waveglow_model.infer(mel_outputs_postnet, sigma=sigma)  # 0.666)
         if denoiser_strength > 0:
