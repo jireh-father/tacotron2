@@ -485,8 +485,13 @@ class Tacotron2(nn.Module):
         self.speaker_embedding_dim = hparams.speaker_embedding_dim
         self.use_decoder_input_embedding_reduction = hparams.use_decoder_input_embedding_reduction
 
-        # if not hparams.use_model_speaker_embedding:
-        self.speaker_embedding_layer = torch.nn.Embedding(hparams.nums_of_speakers, hparams.speaker_embedding_dim)
+        if not hparams.use_model_speaker_embedding:
+            self.speaker_embedding_layer = torch.nn.Embedding(hparams.nums_of_speakers, hparams.speaker_embedding_dim)
+            if hparams.use_speaker_embedding_weight_bound:
+                std = sqrt(2.0 / (hparams.nums_of_speakers + hparams.speaker_embedding_dim))
+                val = sqrt(3.0) * std  # uniform bounds for std
+                self.speaker_embedding_layer.weight.data.uniform_(-val, val)
+
         if hparams.use_decoder_input_embedding_reduction:
             self.decoder_input_linear = torch.nn.Linear(hparams.encoder_embedding_dim + hparams.speaker_embedding_dim,
                                                         hparams.encoder_embedding_dim, bias=True)
