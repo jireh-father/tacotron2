@@ -181,7 +181,7 @@ def train(output_directory, log_directory, checkpoint_path, warm_start, n_gpus,
     if hparams.distributed_run:
         model = apply_gradient_allreduce(model)
 
-    criterion = Tacotron2Loss(use_linear_loss=hparams.use_linear_loss, reg_weight=hparams.reg_weight)
+    criterion = Tacotron2Loss(use_linear_loss=hparams.use_linear_loss, use_loss_reduction_sum=hparams.use_loss_reduction_sum)
 
     logger = prepare_directories_and_logger(
         output_directory, log_directory, rank)
