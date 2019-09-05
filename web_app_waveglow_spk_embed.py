@@ -116,9 +116,9 @@ def simple_synth():
         speaker_embedding_np = np.load(spk_embed_path)
         # speaker_embedding_np = torch.autograd.Variable(torch.FloatTensor(speaker_embedding_np.astype(np.float32)),
         #                                                requires_grad=False)
-        speaker_embedding = torch.FloatTensor(speaker_embedding_np.astype(np.float32)).cuda().unsqueeze(0)
+        speaker_embedding = torch.FloatTensor(speaker_embedding_np.astype(np.float32)).cuda().unsqueeze(0).float()
 
-        mel_outputs_postnet = torch.load(mel_path).unsqueeze(0).cuda()
+        mel_outputs_postnet = torch.load(mel_path).unsqueeze(0).cuda().half()
         speaker_id = [112]
         speaker_id = torch.autograd.Variable(
             torch.from_numpy(np.array(speaker_id))).cuda().long()
