@@ -46,9 +46,9 @@ def init_model():
     hparams.sampling_rate = sampling_rate
     hparams.training = False
 
-    tacotron2_model = load_model(hparams)
-    tacotron2_model.load_state_dict(torch.load(tacotron2_path)['state_dict'])
-    _ = tacotron2_model.cuda().eval().half()
+    # tacotron2_model = load_model(hparams)
+    # tacotron2_model.load_state_dict(torch.load(tacotron2_path)['state_dict'])
+    # _ = tacotron2_model.cuda().eval().half()
 
     # with open("waveglow/config.json") as f:
     #     data = f.read()
