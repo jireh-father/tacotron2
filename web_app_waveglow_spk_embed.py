@@ -38,7 +38,7 @@ def init_model():
     #    tacotron2_path = "outdir_lj_korean/checkpoint_5000"
     #    tacotron2_path = "outdir_longtrain/checkpoint_439500"
     waveglow_path = "../waveglow/checkpoints_finetune/waveglow_478000"
-    waveglow_path = "../waveglow/checkpoints_multispeaker_kr_by_id/waveglow_41000"
+    waveglow_path = "../waveglow/checkpoints_multispeaker_kr_by_model/waveglow_42000"
     #   waveglow_path = "../waveglow/checkpoints/waveglow_335000"
     # waveglow_path = "../waveglow-fix/checkpoints_longtrain/waveglow_484000"
     sampling_rate = 22050
