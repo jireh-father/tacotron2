@@ -20,7 +20,7 @@ tacotron2_model = None
 waveglow_model = None
 denoiser = None
 mel_path = "/home/ilseo/dataset/mels_aihub_datatang_speechko_zeroth/104_003_1188.flac.pt"
-speaker_id = [112]
+
 
 def init_model():
     print("init model!!!!")
@@ -113,7 +113,7 @@ def simple_synth():
         MAX_WAV_VALUE = 32768.0
 
         mel_outputs_postnet = torch.load(mel_path).unsqueeze(0).cuda().half()
-
+        speaker_id = [112]
         speaker_id = torch.autograd.Variable(
             torch.from_numpy(np.array(speaker_id))).cuda().long()
         audio = waveglow_model.infer(mel_outputs_postnet, sigma=sigma, spk_embed_or_id=speaker_id)  # 0.666)
