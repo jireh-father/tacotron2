@@ -82,8 +82,7 @@ if __name__ == "__main__":
 
     def local_mel2samp(filepath):
         filepath = filepath.split("|")[0]
-        new_filepath = filepath
-        filepath = os.path.splitext(filepath)[0]
+        new_filepath = filepath + ".pt"
         if os.path.isfile(new_filepath):
             print("skip", new_filepath)
             return

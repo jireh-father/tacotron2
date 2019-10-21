@@ -21,7 +21,7 @@ if __name__ == "__main__":
     with open(script_path) as f:
         for line in f:
             split_line = line.split("|")
-            file_path = split_line[0] + ".pt"
+            file_path = split_line[0]
             script = split_line[1]
             out_file.write(os.path.join(wav_dir, file_path) + "|" + script + "\n")
 
