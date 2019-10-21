@@ -96,11 +96,6 @@ if __name__ == "__main__":
 
     filepaths = files_to_list(args.filelist_path)
 
-    # Make directory if it doesn't exist
-    if not os.path.isdir(args.output_dir):
-        os.makedirs(args.output_dir)
-        os.chmod(args.output_dir, 0o775)
-
     with Pool(args.num_processes) as pool:  # ThreadPool(8) as pool:
         # list(tqdm(pool.imap(preprocess_speaker, speaker_dirs), dataset_name, len(speaker_dirs),
         list(pool.map(local_mel2samp, filepaths))
