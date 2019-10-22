@@ -93,8 +93,8 @@ def simple_synth():
 
 
     start = time.time()
-    sequence = np.array(text_to_sequence(text, ['transliteration_cleaners']))[None, :]
-    #    sequence = np.array(text_to_sequence(text, ['english_cleaners']))[None, :]
+    # sequence = np.array(text_to_sequence(text, ['transliteration_cleaners']))[None, :]
+    sequence = np.array(text_to_sequence(text, ['english_cleaners']))[None, :]
     #    sequence = np.array(text_to_sequence(text, ['korean_cleaners']))[None, :]
     sequence = torch.autograd.Variable(
         torch.from_numpy(sequence)).cuda().long()

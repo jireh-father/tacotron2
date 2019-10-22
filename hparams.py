@@ -25,9 +25,9 @@ def create_hparams(hparams_string=None, verbose=False):
         # Data Parameters             #
         ################################
         load_mel_from_disk=False,
-        training_files='filelists/ljs_audio_text_train_filelist.txt',
-        validation_files='filelists/ljs_audio_text_val_filelist.txt',
-        text_cleaners=['korean_cleaners'],#''english_cleaners'],
+        training_files='filelists/train_list.txt',
+        validation_files='filelists/val_list.txt',
+        text_cleaners=['english_cleaners'],
         num_workers=4,
 
         ################################
